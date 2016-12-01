@@ -27,56 +27,55 @@ import ItemRepo.newItemToItem
  * Please only place your hand-written code between appropriate comments in the body of the controller.
  */
 
-package shop.yaml {
+package v1.yaml {
 
-    class ShopYaml @Inject() (lifecycle: ApplicationLifecycle, config: ConfigurationProvider) extends ShopYamlBase {
-        // ----- Start of unmanaged code area for constructor ShopYaml
+    class Items @Inject() (lifecycle: ApplicationLifecycle, config: ConfigurationProvider) extends ItemsBase {
+        // ----- Start of unmanaged code area for constructor Items
         @Inject private var itemRepo: ItemRepo = null
-        // ----- End of unmanaged code area for constructor ShopYaml
-        val getAll = getAllAction {  _ =>  
-            // ----- Start of unmanaged code area for action  ShopYaml.getAll
-            GetAll200(itemRepo.getAll())
-            // ----- End of unmanaged code area for action  ShopYaml.getAll
+        // ----- End of unmanaged code area for constructor Items
+        val itemsGet = itemsGetAction {  _ =>
+            // ----- Start of unmanaged code area for action  Items.itemsGet
+            ItemsGet200(itemRepo.getAll())
+            // ----- End of unmanaged code area for action  Items.itemsGet
         }
-        val create = createAction { (item: NewItem) =>  
-            // ----- Start of unmanaged code area for action  ShopYaml.create
+        val itemsPost = itemsPostAction { (item: NewItem) =>
+            // ----- Start of unmanaged code area for action  Items.itemsPost
             val f: Future[Item] = Future {
               val id = Await.result(itemRepo.create(item), Duration.Inf)
               val newItem: Item = item
               newItem.copy(id = id)
             }
-            Create200(f)
-            // ----- End of unmanaged code area for action  ShopYaml.create
+            ItemsPost200(f)
+            // ----- End of unmanaged code area for action  Items.itemsPost
         }
-        val details = detailsAction { (id: Int) =>  
-            // ----- Start of unmanaged code area for action  ShopYaml.details
+        val itemGet = itemGetAction { (id: Int) =>
+            // ----- Start of unmanaged code area for action  Items.itemGet
             val f: Future[Item] = Future {
               Await.result(itemRepo.getById(id), Duration.Inf) match {
                 case Some(item) => item
                 case None => throw new Exception("Not found item with id: " + id)
               }
             }
-            Details200(f)
-            // ----- End of unmanaged code area for action  ShopYaml.details
+            ItemGet200(f)
+            // ----- End of unmanaged code area for action  Items.itemGet
         }
-        val update = updateAction { input: (Int, NewItem) =>
+        val itemPut = itemPutAction { input: (Int, NewItem) =>
             val (id, item) = input
-            // ----- Start of unmanaged code area for action  ShopYaml.update
+            // ----- Start of unmanaged code area for action  Items.itemPut
             val tempItem: Item = item
             val newItem = tempItem.copy(id = id)
             val f: Future[Item] = Future {
               Await.result(itemRepo.update(newItem), Duration.Inf)
               newItem
             }
-            Update200(f)
-            // ----- End of unmanaged code area for action  ShopYaml.update
+            ItemPut200(f)
+            // ----- End of unmanaged code area for action  Items.itemPut
         }
-        val delete = deleteAction { (id: Int) =>  
-            // ----- Start of unmanaged code area for action  ShopYaml.delete
+        val itemDelete = itemDeleteAction { (id: Int) =>
+            // ----- Start of unmanaged code area for action  Items.itemDelete
             Await.result(itemRepo.delete(id), Duration.Inf)
-            Delete200()
-            // ----- End of unmanaged code area for action  ShopYaml.delete
+            ItemDelete200()
+            // ----- End of unmanaged code area for action  Items.itemDelete
         }
-    
     }
 }

@@ -1,8 +1,10 @@
 name := """order-transaction"""
 
-version := "0.0.1"
+version := "1.0"
 
-scalaVersion := "2.11.8"
+lazy val root = (project in file(".")).enablePlugins(PlayScala, ApiFirstCore, ApiFirstPlayScalaCodeGenerator, ApiFirstSwaggerParser)
+
+scalaVersion := "2.11.7"
 
 libraryDependencies ++= Seq(
   cache,
@@ -23,8 +25,6 @@ resolvers ++= Seq(
   "jeffmay"         at "https://dl.bintray.com/jeffmay/maven",
   Resolver.url("sbt-plugins", url("http://dl.bintray.com/zalando/sbt-plugins"))(Resolver.ivyStylePatterns)
 )
-
-lazy val root = (project in file(".")).enablePlugins(PlayScala, ApiFirstCore, ApiFirstPlayScalaCodeGenerator, ApiFirstSwaggerParser)
 
 routesGenerator := InjectedRoutesGenerator
 

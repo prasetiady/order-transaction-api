@@ -4,9 +4,9 @@ swagger: '2.0'
 ################################################################################
 info:
   version: 1.0
-  title: My Shop, Simple API
+  title: Order Transaction API
   description: |
-    This is specification for Shop API
+    This is specification for Order Transaction API
   contact:
     name: Dedy Prasetiady
     email: dedy.berastagi@gmail.com
@@ -31,6 +31,7 @@ tags:
 ################################################################################
 paths:
   /items:
+    x-api-first-handler: "v1.yaml.Items.items"
     get:
       tags:
         - Items
@@ -73,6 +74,7 @@ paths:
           schema:
             $ref: '#/definitions/ErrorModel'
   /items/{id}:
+    x-api-first-handler: "v1.yaml.Items.item"
     get:
       tags:
         - Items

@@ -10,7 +10,7 @@ import scala.concurrent.Future
 
 import de.zalando.play.controllers.PlayBodyParsing
 
-import shop.yaml._
+import v1.yaml._
 
 /**
   * The purpose of this ErrorHandler is to override default play's error reporting with application/json content type.

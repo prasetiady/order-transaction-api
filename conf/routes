@@ -16,4 +16,4 @@ GET         /favicon.ico    controllers.Assets.versioned(path="/public/swagger/i
 
 GET         /api/*file      controllers.Assets.versioned(path="/public/swagger", file: Asset)
 
-->          /v1             shop.yaml.Routes
+->          /v1             v1.yaml.Routes

@@ -1,7 +1,7 @@
 package	com.prasetiady.repo
 
 import scala.concurrent.Future
-import shop.yaml._
+import v1.yaml._
 import javax.inject.{Inject,Singleton}
 import play.api.db.slick.{HasDatabaseConfigProvider, DatabaseConfigProvider}
 import slick.driver.JdbcProfile
