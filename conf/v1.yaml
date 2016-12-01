@@ -25,18 +25,176 @@ produces:
 #                                   Tags                                       #
 ################################################################################
 tags:
-  - name: Items
+  - name: Order
+  - name: Customer
 ################################################################################
 #                                   Paths                                      #
 ################################################################################
 paths:
+  /customer/{customer_id}/cart:
+    x-api-first-handler: "v1.yaml.Customer.cart"
+    get:
+      tags:
+        - Customer
+      description: |
+        Return shopping cart id based on customer id ( shopping cart is order
+        that has not yet been completed). Create new order if user exist but
+        shopping cart not found.
+      parameters:
+        - name: customer_id
+          type: string
+          in: path
+          required: true
+      responses:
+        200:
+          description: OK
+  /customer/{customer_id}/orders:
+    x-api-first-handler: "v1.yaml.Customer.orders"
+    get:
+      tags:
+        - Customer
+      description: |
+        Return array of order id based on customer id.
+      parameters:
+        - name: customer_id
+          type: string
+          in: path
+          required: true
+      responses:
+        200:
+          description: OK
+  /order/{order_id}/lineItem:
+    x-api-first-handler: "v1.yaml.Order.lineItem"
+    post:
+      tags:
+        - Order
+      description: Add product to an order
+      parameters:
+        - name: order_id
+          type: integer
+          format: int32
+          in: path
+          required: true
+        - name: product_id
+          in: body
+          schema:
+            type: integer
+            format: int32
+          required: true
+      responses:
+        200:
+          description: OK
+  /order/{order_id}/coupon:
+    x-api-first-handler: "v1.yaml.Order.coupon"
+    post:
+      tags:
+        - Order
+      description: Apply coupon to an order
+      parameters:
+        - name: order_id
+          in: path
+          type: integer
+          format: int32
+          required: true
+        - name: coupon_code
+          in: body
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+  /order/{order_id}/checkout:
+    x-api-first-handler: "v1.yaml.Order.checkout"
+    put:
+      tags:
+        - Order
+      description: Submit order (checkout)
+      parameters:
+        - name: order_id
+          in: path
+          type: integer
+          format: int32
+          required: true
+        - name: shipping_address
+          in: body
+          schema:
+            $ref: "#/definitions/ShippingAddress"
+          required: true
+      responses:
+        200:
+          description: OK
+  /order/{order_id}/paymentProff:
+    x-api-first-handler: "v1.yaml.Order.paymentProff"
+    post:
+      tags:
+        - Order
+      description: Pay order, submit payment proff
+      parameters:
+        - name: order_id
+          in: path
+          type: integer
+          format: int32
+          required: true
+        - name: payment_proff
+          in: body
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+  /order/{order_id}:
+    x-api-first-handler: "v1.yaml.Order.order"
+    get:
+      tags:
+        - Order
+      description: Return order details
+      parameters:
+        - name: order_id
+          in: path
+          type: integer
+          format: int32
+          required: true
+      responses:
+        200:
+          description: OK
+  /order/{order_id}/cancel:
+    x-api-first-handler: "v1.yaml.Order.cancel"
+    put:
+      tags:
+        - Order
+      description: Cancel Order
+      parameters:
+        - name: order_id
+          in: path
+          type: integer
+          format: int32
+          required: true
+      responses:
+        200:
+          description: OK
+  /order/{order_id}/ship:
+    x-api-first-handler: "v1.yaml.Order.ship"
+    put:
+      tags:
+        - Order
+      description: Ship Order
+      parameters:
+        - name: order_id
+          in: path
+          type: integer
+          format: int32
+          required: true
+      responses:
+        200:
+          description: OK
   /items:
     x-api-first-handler: "v1.yaml.Items.items"
     get:
       tags:
         - Items
       description: Returns all items
-      operationId: getAll
       produces:
         - application/json+items
       responses:
@@ -54,7 +212,6 @@ paths:
       tags:
         - Items
       description: Creates a new item
-      operationId: create
       produces:
         - application/json
       parameters:
@@ -79,7 +236,6 @@ paths:
       tags:
         - Items
       description: Returns item details
-      operationId: details
       parameters:
         - name: id
           in: path
@@ -102,7 +258,6 @@ paths:
       tags:
         - Items
       description: Update item
-      operationId: update
       parameters:
         - name: id
           in: path
@@ -131,7 +286,6 @@ paths:
       tags:
         - Items
       description: Delete item
-      operationId: delete
       parameters:
         - name: id
           in: path
@@ -189,4 +343,20 @@ definitions:
         type: integer
         format: int32
       message:
+        type: string
+  ShippingAddress:
+    required:
+      - name
+      - phone_number
+      - email
+      - address
+    properties:
+      name:
+        type: string
+      phone_number:
+        type: string
+      email:
+        type: string
+        format: email
+      address:
         type: string
