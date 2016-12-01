@@ -1,0 +1,13 @@
+# ITEMS schema
+
+# --- !Ups
+CREATE TABLE ITEMS (
+  ID int(11) NOT NULL AUTO_INCREMENT,
+  NAME varchar(255) NOT NULL,
+  PRICE double NOT NULL,
+  DESCRIPTION varchar(255) DEFAULT NULL,
+  PRIMARY KEY (ID)
+);
+
+# --- !Downs
+DROP TABLE ITEMS;

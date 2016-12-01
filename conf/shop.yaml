@@ -1,0 +1,190 @@
+swagger: '2.0'
+################################################################################
+#                              API Information                                 #
+################################################################################
+info:
+  version: 1.0
+  title: My Shop, Simple API
+  description: |
+    This is specification for Shop API
+  contact:
+    name: Dedy Prasetiady
+    email: dedy.berastagi@gmail.com
+################################################################################
+#                  Host, Base Path, Schemes and Content Types                  #
+################################################################################
+basePath: /v1
+schemes:
+  - http
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+################################################################################
+#                                   Tags                                       #
+################################################################################
+tags:
+  - name: Items
+################################################################################
+#                                   Paths                                      #
+################################################################################
+paths:
+  /items:
+    get:
+      tags:
+        - Items
+      description: Returns all items
+      operationId: getAll
+      produces:
+        - application/json+items
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Item'
+        500:
+          description: error
+          schema:
+            $ref: '#/definitions/ErrorModel'
+    post:
+      tags:
+        - Items
+      description: Creates a new item
+      operationId: create
+      produces:
+        - application/json
+      parameters:
+        - name: item
+          in: body
+          description: Item to add
+          required: true
+          schema:
+            $ref: '#/definitions/NewItem'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/Item'
+        500:
+          description: error
+          schema:
+            $ref: '#/definitions/ErrorModel'
+  /items/{id}:
+    get:
+      tags:
+        - Items
+      description: Returns item details
+      operationId: details
+      parameters:
+        - name: id
+          in: path
+          description: ID of item to fetch
+          required: true
+          type: integer
+          format: int32
+      produces:
+        - application/json+item
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/Item'
+        500:
+          description: error
+          schema:
+            $ref: '#/definitions/ErrorModel'
+    put:
+      tags:
+        - Items
+      description: Update item
+      operationId: update
+      parameters:
+        - name: id
+          in: path
+          description: ID of item to update
+          required: true
+          type: integer
+          format: int32
+        - name: item
+          in: body
+          description: New item
+          required: true
+          schema:
+            $ref: '#/definitions/NewItem'
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/Item'
+        500:
+          description: error
+          schema:
+            $ref: '#/definitions/ErrorModel'
+    delete:
+      tags:
+        - Items
+      description: Delete item
+      operationId: delete
+      parameters:
+        - name: id
+          in: path
+          description: ID of item to delete
+          required: true
+          type: integer
+          format: int32
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+        500:
+          description: error
+          schema:
+            $ref: '#/definitions/ErrorModel'
+################################################################################
+#                                 Definitions                                  #
+################################################################################
+definitions:
+  Item:
+    required:
+      - id
+      - name
+      - price
+    properties:
+      id:
+        type: integer
+        format: int32
+      name:
+        type: string
+      price:
+        type: number
+        format: double
+      description:
+        type: string
+  NewItem:
+    required:
+      - name
+      - price
+    properties:
+      name:
+        type: string
+      price:
+        type: number
+        format: double
+      description:
+        type: string
+  ErrorModel:
+    required:
+      - code
+      - message
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
