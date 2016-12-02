@@ -32,6 +32,21 @@ tags:
 ################################################################################
 paths:
   # Customer Path
+  /customers:
+    x-api-first-handler: "v1.yaml.CustomerHandler.customers"
+    get:
+      tags:
+        - Customer
+      description: Return all customers
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Customer'
   /customer/{customerId}/cart:
     x-api-first-handler: "v1.yaml.CustomerHandler.cart"
     get:
@@ -39,31 +54,40 @@ paths:
         - Customer
       description: |
         Return shopping cart id based on customer id ( shopping cart is order
-        that has not yet been completed). Create new order if user exist but
+        that has not yet been submitted). Create new order if user exist but
         shopping cart not found.
       parameters:
         - name: customerId
-          type: string
+          type: integer
+          format: int32
           in: path
           required: true
+      produces:
+        - application/json
       responses:
         200:
           description: OK
+          schema:
+            $ref: '#/definitions/ShoppingCart'
   /customer/{customerId}/orders:
     x-api-first-handler: "v1.yaml.CustomerHandler.orders"
     get:
       tags:
         - Customer
-      description: |
-        Return array of order id based on customer id.
+      description: Return array of order based on customer id.
       parameters:
         - name: customerId
-          type: string
+          type: integer
+          format: int32
           in: path
           required: true
       responses:
         200:
           description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Order'
   # Order Path
   /order/{orderId}:
     x-api-first-handler: "v1.yaml.OrderHandler.order"
@@ -239,10 +263,10 @@ definitions:
         format: double
       discountType:
         type: string
-        default: PERCENTAGE
-        enum:
-          - PERCENTAGE
-          - DECIMAL
+        # default: PERCENTAGE
+        # enum:
+        #   - PERCENTAGE
+        #   - DECIMAL
   Product:
     required:
       - id
@@ -299,31 +323,31 @@ definitions:
         format: int32
   Order:
     required:
-      - id
-      - customerId
-      - status
-      - isComplete
       - isPaid
+      - isSubmitted
+      - customerId
+      - id
+      - status
     properties:
-      id:
+      isPaid:
+        type: boolean
+      isSubmitted:
+        type: boolean
+      customerId:
         type: integer
         format: int32
-      customerId:
+      id:
         type: integer
         format: int32
       status:
         type: string
-        default: NEW
-        enum:
-          - NEW
-          - HOLD
-          - VERIFIED
-          - SHIPPED
-          - CANCELED
-      isComplete:
-        type: boolean
-      isPaid:
-        type: boolean
+  ShoppingCart:
+    required:
+      - orderId
+    properties:
+      orderId:
+        type: integer
+        format: int32
   ShippingAddress:
     required:
       - id
