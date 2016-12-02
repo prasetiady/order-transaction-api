@@ -18,6 +18,7 @@ import javax.inject._
 import scala.concurrent.duration._
 import scala.concurrent.{Future,Await}
 import scala.concurrent.ExecutionContext.Implicits.global
+import com.prasetiady.repo._
 
 /**
  * This controller is re-generated after each change in the specification.
@@ -28,18 +29,27 @@ package v1.yaml {
 
     class CustomerHandler @Inject() (lifecycle: ApplicationLifecycle, config: ConfigurationProvider) extends CustomerHandlerBase {
         // ----- Start of unmanaged code area for constructor CustomerHandler
-
+        @Inject private var customersRepo: CustomersRepo = null
         // ----- End of unmanaged code area for constructor CustomerHandler
-        val ordersGet = ordersGetAction { (customerId: String) =>
+        val ordersGet = ordersGetAction { (customerId: Int) =>  
             // ----- Start of unmanaged code area for action  CustomerHandler.ordersGet
-            NotImplementedYet
+            OrdersGet200(customersRepo.getAllCustomerOrders(customerId))
             // ----- End of unmanaged code area for action  CustomerHandler.ordersGet
         }
-        val cartGet = cartGetAction { (customerId: String) =>
+        val cartGet = cartGetAction { (customerId: Int) =>  
             // ----- Start of unmanaged code area for action  CustomerHandler.cartGet
-            NotImplementedYet
+            CartGet200(Future[ShoppingCart]{
+              val orderId = Await.result(customersRepo.getShoppingCart(customerId), Duration.Inf)
+              ShoppingCart(orderId)
+            })
             // ----- End of unmanaged code area for action  CustomerHandler.cartGet
         }
+        val customersGet = customersGetAction {  _ =>  
+            // ----- Start of unmanaged code area for action  CustomerHandler.customersGet
+            CustomersGet200(customersRepo.getAllCustomers())
+            // ----- End of unmanaged code area for action  CustomerHandler.customersGet
+        }
+    
     }
 }
 package v1.yaml {
@@ -54,17 +64,17 @@ package v1.yaml {
             NotImplementedYet
             // ----- End of unmanaged code area for action  OrderHandler.couponPost
         }
-        val orderGet = orderGetAction { (orderId: Int) =>
+        val orderGet = orderGetAction { (orderId: Int) =>  
             // ----- Start of unmanaged code area for action  OrderHandler.orderGet
             NotImplementedYet
             // ----- End of unmanaged code area for action  OrderHandler.orderGet
         }
-        val shipPut = shipPutAction { (orderId: Int) =>
+        val shipPut = shipPutAction { (orderId: Int) =>  
             // ----- Start of unmanaged code area for action  OrderHandler.shipPut
             NotImplementedYet
             // ----- End of unmanaged code area for action  OrderHandler.shipPut
         }
-        val verifyPut = verifyPutAction { (orderId: Int) =>
+        val verifyPut = verifyPutAction { (orderId: Int) =>  
             // ----- Start of unmanaged code area for action  OrderHandler.verifyPut
             NotImplementedYet
             // ----- End of unmanaged code area for action  OrderHandler.verifyPut
@@ -75,7 +85,7 @@ package v1.yaml {
             NotImplementedYet
             // ----- End of unmanaged code area for action  OrderHandler.paymentProffPost
         }
-        val cancelPut = cancelPutAction { (orderId: Int) =>
+        val cancelPut = cancelPutAction { (orderId: Int) =>  
             // ----- Start of unmanaged code area for action  OrderHandler.cancelPut
             NotImplementedYet
             // ----- End of unmanaged code area for action  OrderHandler.cancelPut
@@ -92,5 +102,6 @@ package v1.yaml {
             NotImplementedYet
             // ----- End of unmanaged code area for action  OrderHandler.lineItemPost
         }
+    
     }
 }
