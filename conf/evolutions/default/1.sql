@@ -1,13 +1,16 @@
-# ITEMS schema
+# Coupons schema
 
 # --- !Ups
-CREATE TABLE ITEMS (
-  ID int(11) NOT NULL AUTO_INCREMENT,
-  NAME varchar(255) NOT NULL,
-  PRICE double NOT NULL,
-  DESCRIPTION varchar(255) DEFAULT NULL,
-  PRIMARY KEY (ID)
+CREATE TABLE Coupons (
+  id INT(11) NOT NULL AUTO_INCREMENT,
+  code VARCHAR(255) NOT NULL,
+  quantity INT(11) UNSIGNED NOT NULL,
+  validFrom DATETIME NOT NULL,
+  validUntil DATETIME NOT NULL,
+  discountAmount DOUBLE UNSIGNED NOT NULL,
+  discountType ENUM('PERCENTAGE', 'DECIMAL') DEFAULT 'PERCENTAGE',
+  PRIMARY KEY (id)
 );
 
 # --- !Downs
-DROP TABLE ITEMS;
+DROP TABLE Coupons;
