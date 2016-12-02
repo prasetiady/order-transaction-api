@@ -30,26 +30,40 @@ package v1.yaml {
         // ----- Start of unmanaged code area for constructor Customer
 
         // ----- End of unmanaged code area for constructor Customer
-        val ordersGet = ordersGetAction { (customer_id: String) =>
+        val ordersGet = ordersGetAction { (customer_id: String) =>  
             // ----- Start of unmanaged code area for action  Customer.ordersGet
             NotImplementedYet
             // ----- End of unmanaged code area for action  Customer.ordersGet
         }
-        val cartGet = cartGetAction { (customer_id: String) =>
+        val cartGet = cartGetAction { (customer_id: String) =>  
             // ----- Start of unmanaged code area for action  Customer.cartGet
             NotImplementedYet
             // ----- End of unmanaged code area for action  Customer.cartGet
         }
+    
+     // Dead code for absent methodItems.itemsGet
+     /*
+            // ----- Start of unmanaged code area for action  Items.itemsGet
+            ItemsGet200(itemRepo.getAll())
+            // ----- End of unmanaged code area for action  Items.itemsGet
+     */
 
-    }
-}
-package v1.yaml {
+    
+     // Dead code for absent methodItems.itemsPost
+     /*
+            // ----- Start of unmanaged code area for action  Items.itemsPost
+            val f: Future[Item] = Future {
+              val id = Await.result(itemRepo.create(item), Duration.Inf)
+              val newItem: Item = item
+              newItem.copy(id = id)
+            }
+            ItemsPost200(f)
+            // ----- End of unmanaged code area for action  Items.itemsPost
+     */
 
-    class Items @Inject() (lifecycle: ApplicationLifecycle, config: ConfigurationProvider) extends ItemsBase {
-        // ----- Start of unmanaged code area for constructor Items
-
-        // ----- End of unmanaged code area for constructor Items
-        val itemGet = itemGetAction { (id: Int) =>
+    
+     // Dead code for absent methodItems.itemGet
+     /*
             // ----- Start of unmanaged code area for action  Items.itemGet
             val f: Future[Item] = Future {
               Await.result(itemRepo.getById(id), Duration.Inf) match {
@@ -59,9 +73,11 @@ package v1.yaml {
             }
             ItemGet200(f)
             // ----- End of unmanaged code area for action  Items.itemGet
-        }
-        val itemPut = itemPutAction { input: (Int, NewItem) =>
-            val (id, item) = input
+     */
+
+    
+     // Dead code for absent methodItems.itemPut
+     /*
             // ----- Start of unmanaged code area for action  Items.itemPut
             val tempItem: Item = item
             val newItem = tempItem.copy(id = id)
@@ -71,29 +87,26 @@ package v1.yaml {
             }
             ItemPut200(f)
             // ----- End of unmanaged code area for action  Items.itemPut
-        }
-        val itemDelete = itemDeleteAction { (id: Int) =>
+     */
+
+    
+     // Dead code for absent methodOrder.verifiedPut
+     /*
+            // ----- Start of unmanaged code area for action  Order.verifiedPut
+            NotImplementedYet
+            // ----- End of unmanaged code area for action  Order.verifiedPut
+     */
+
+    
+     // Dead code for absent methodItems.itemDelete
+     /*
             // ----- Start of unmanaged code area for action  Items.itemDelete
             Await.result(itemRepo.delete(id), Duration.Inf)
             ItemDelete200()
             // ----- End of unmanaged code area for action  Items.itemDelete
-        }
-        val itemsGet = itemsGetAction {  _ =>
-            // ----- Start of unmanaged code area for action  Items.itemsGet
-            ItemsGet200(itemRepo.getAll())
-            // ----- End of unmanaged code area for action  Items.itemsGet
-        }
-        val itemsPost = itemsPostAction { (item: NewItem) =>
-            // ----- Start of unmanaged code area for action  Items.itemsPost
-            val f: Future[Item] = Future {
-              val id = Await.result(itemRepo.create(item), Duration.Inf)
-              val newItem: Item = item
-              newItem.copy(id = id)
-            }
-            ItemsPost200(f)
-            // ----- End of unmanaged code area for action  Items.itemsPost
-        }
+     */
 
+    
     }
 }
 package v1.yaml {
@@ -108,17 +121,22 @@ package v1.yaml {
             NotImplementedYet
             // ----- End of unmanaged code area for action  Order.paymentProffPost
         }
-        val shipPut = shipPutAction { (order_id: Int) =>
+        val shipPut = shipPutAction { (order_id: Int) =>  
             // ----- Start of unmanaged code area for action  Order.shipPut
             NotImplementedYet
             // ----- End of unmanaged code area for action  Order.shipPut
         }
-        val orderGet = orderGetAction { (order_id: Int) =>
+        val orderGet = orderGetAction { (order_id: Int) =>  
             // ----- Start of unmanaged code area for action  Order.orderGet
             NotImplementedYet
             // ----- End of unmanaged code area for action  Order.orderGet
         }
-        val cancelPut = cancelPutAction { (order_id: Int) =>
+        val verifyPut = verifyPutAction { (order_id: Int) =>  
+            // ----- Start of unmanaged code area for action  Order.verifyPut
+            NotImplementedYet
+            // ----- End of unmanaged code area for action  Order.verifyPut
+        }
+        val cancelPut = cancelPutAction { (order_id: Int) =>  
             // ----- Start of unmanaged code area for action  Order.cancelPut
             NotImplementedYet
             // ----- End of unmanaged code area for action  Order.cancelPut
@@ -141,6 +159,72 @@ package v1.yaml {
             NotImplementedYet
             // ----- End of unmanaged code area for action  Order.checkoutPut
         }
+    
+     // Dead code for absent methodItems.itemsGet
+     /*
+            // ----- Start of unmanaged code area for action  Items.itemsGet
+            ItemsGet200(itemRepo.getAll())
+            // ----- End of unmanaged code area for action  Items.itemsGet
+     */
 
+    
+     // Dead code for absent methodItems.itemsPost
+     /*
+            // ----- Start of unmanaged code area for action  Items.itemsPost
+            val f: Future[Item] = Future {
+              val id = Await.result(itemRepo.create(item), Duration.Inf)
+              val newItem: Item = item
+              newItem.copy(id = id)
+            }
+            ItemsPost200(f)
+            // ----- End of unmanaged code area for action  Items.itemsPost
+     */
+
+    
+     // Dead code for absent methodItems.itemGet
+     /*
+            // ----- Start of unmanaged code area for action  Items.itemGet
+            val f: Future[Item] = Future {
+              Await.result(itemRepo.getById(id), Duration.Inf) match {
+                case Some(item) => item
+                case None => throw new Exception("Not found item with id: " + id)
+              }
+            }
+            ItemGet200(f)
+            // ----- End of unmanaged code area for action  Items.itemGet
+     */
+
+    
+     // Dead code for absent methodItems.itemPut
+     /*
+            // ----- Start of unmanaged code area for action  Items.itemPut
+            val tempItem: Item = item
+            val newItem = tempItem.copy(id = id)
+            val f: Future[Item] = Future {
+              Await.result(itemRepo.update(newItem), Duration.Inf)
+              newItem
+            }
+            ItemPut200(f)
+            // ----- End of unmanaged code area for action  Items.itemPut
+     */
+
+    
+     // Dead code for absent methodOrder.verifiedPut
+     /*
+            // ----- Start of unmanaged code area for action  Order.verifiedPut
+            NotImplementedYet
+            // ----- End of unmanaged code area for action  Order.verifiedPut
+     */
+
+    
+     // Dead code for absent methodItems.itemDelete
+     /*
+            // ----- Start of unmanaged code area for action  Items.itemDelete
+            Await.result(itemRepo.delete(id), Duration.Inf)
+            ItemDelete200()
+            // ----- End of unmanaged code area for action  Items.itemDelete
+     */
+
+    
     }
 }
