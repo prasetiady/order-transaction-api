@@ -149,6 +149,8 @@ paths:
       tags:
         - Order
       description: Add a product to an order
+      consumes:
+        - application/json
       parameters:
         - name: body
           in: body
@@ -165,6 +167,39 @@ paths:
               productId:
                 type: integer
                 format: int32
+      responses:
+        200:
+          description: OK
+          schema:
+            type: integer
+            format: int32
+        500:
+          description: error
+          schema:
+            $ref: '#/definitions/ErrorModel'
+  /order/coupon:
+    x-api-first-handler: 'v1.yaml.OrderHandler.coupon'
+    post:
+      tags:
+        - Order
+      description: Apply coupon to an order
+      consumes:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required:
+              - orderId
+              - couponCode
+            properties:
+              orderId:
+                type: integer
+                format: int32
+              couponCode:
+                type: string
       responses:
         200:
           description: OK
@@ -212,30 +247,7 @@ paths:
   #         schema:
   #           $ref: '#/definitions/ErrorModel'
 
-  # /order/{orderId}/coupon:
-  #   x-api-first-handler: 'v1.yaml.OrderHandler.coupon'
-  #   post:
-  #     tags:
-  #       - Order
-  #     description: Apply coupon to an order
-  #     parameters:
-  #       - name: orderId
-  #         in: path
-  #         type: integer
-  #         format: int32
-  #         required: true
-  #       - name: couponCode
-  #         in: body
-  #         schema:
-  #           type: string
-  #         required: true
-  #     responses:
-  #       200:
-  #         description: OK
-  #       500:
-  #         description: error
-  #         schema:
-  #           $ref: '#/definitions/ErrorModel'
+
   # /order/{orderId}/checkout:
   #   x-api-first-handler: 'v1.yaml.OrderHandler.checkout'
   #   put:
@@ -448,6 +460,7 @@ definitions:
       - status
       - isSubmitted
       - isPaid
+      - couponId
     properties:
       id:
         type: integer
@@ -461,6 +474,9 @@ definitions:
         type: boolean
       isPaid:
         type: boolean
+      couponId:
+        type: integer
+        format: int32
   ShoppingCart:
     required:
       - orderId

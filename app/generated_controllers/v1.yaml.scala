@@ -60,8 +60,13 @@ package v1.yaml {
         // ----- End of unmanaged code area for constructor OrderHandler
         val productPost = productPostAction { (body: OrderProductPostBody) =>  
             // ----- Start of unmanaged code area for action  OrderHandler.productPost
-            ProductPost200(ordersRepo.addProductToOrder(body.orderId, body.productId))
+            ProductPost200(ordersRepo.addProduct(body.orderId, body.productId))
             // ----- End of unmanaged code area for action  OrderHandler.productPost
+        }
+        val couponPost = couponPostAction { (body: OrderCouponPostBody) =>  
+            // ----- Start of unmanaged code area for action  OrderHandler.couponPost
+            CouponPost200(ordersRepo.applyCoupon(body.orderId, body.couponCode))
+            // ----- End of unmanaged code area for action  OrderHandler.couponPost
         }
     
     }

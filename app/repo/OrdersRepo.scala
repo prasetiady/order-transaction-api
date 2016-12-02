@@ -7,9 +7,11 @@ import play.api.db.slick.{HasDatabaseConfigProvider, DatabaseConfigProvider}
 import slick.driver.JdbcProfile
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 @Singleton()
-class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) extends OrdersTable with LineItemsTable with ProductsTable with HasDatabaseConfigProvider[JdbcProfile] {
+class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) extends OrdersTable with LineItemsTable with ProductsTable with CouponsTable with HasDatabaseConfigProvider[JdbcProfile] {
   import driver.api._
 
   /**
@@ -18,7 +20,7 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
    * @return
    * Add a product to an order
    */
-  def addProductToOrder(orderId: Int, productId: Int): Future[Int] = Future {
+  def addProduct(orderId: Int, productId: Int): Future[Int] = Future {
     orderMustBeExists(orderId)
     val getProductResult: Option[Product] = Await.result(getProductById(productId), Duration.Inf)
     getProductResult match {
@@ -38,6 +40,20 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
     }
   }
 
+  def applyCoupon(orderId: Int, couponCode: String): Future[Int] = Future {
+    val order = orderMustBeExists(orderId)
+    orderCanOnlyHaveOneCoupon(order)
+    val getCouponResult: Option[Coupon] = Await.result(findActiveCoupon(couponCode), Duration.Inf)
+    getCouponResult match {
+      case Some(coupon) => {
+        couponQuantityMustBeGreaterThanZero(coupon)
+        Await.result(applyCoupon(orderId, coupon.id), Duration.Inf)
+        coupon.id
+      }
+      case None => throw new Exception("Not found active coupon with code: " + couponCode)
+    }
+  }
+
   /*
    * Rule: Product with quantity 0 can not be ordered
    */
@@ -51,11 +67,27 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
     if (product.quantity > 0) true else throw new Exception("Product with quantity 0 can not be ordered")
 
   /*
+   * Rule: Coupon with quantity 0 can not be applied
+   */
+  private[OrdersRepo] def couponQuantityMustBeGreaterThanZero(coupon: Coupon): Boolean =
+    if (coupon.quantity > 0) true else throw new Exception("Coupon with quantity 0 can not be applied")
+
+  /*
+   * Rule: Order can only have one coupon applied
+   */
+  private[OrdersRepo] def orderCanOnlyHaveOneCoupon(order: Order): Boolean =
+    if (order.couponId == 0) true else throw new Exception("Order already have coupon applied")
+
+  /*
    * Rule: Order must be exists
    */
-  private[OrdersRepo] def orderMustBeExists(orderId: Int): Boolean =
-    if (Await.result(db.run(ordersTableQuery.filter(_.id === orderId).exists.result), Duration.Inf))
-      true else throw new Exception("Not found order with id: " + orderId)
+  private[OrdersRepo] def orderMustBeExists(orderId: Int): Order = {
+    val orderOption: Option[Order] = Await.result(db.run(ordersTableQuery.filter(_.id === orderId).result.headOption), Duration.Inf)
+    orderOption match {
+      case Some(order) => order
+      case None => throw new Exception("Not found order with id: " + orderId)
+    }
+  }
 
   /**
    * @param productId
@@ -78,4 +110,12 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
     lineItemsTableQuery.filter(_.id === lineItem.id).map(_.quantity).update(lineItem.quantity + 1)
   }
 
+  private[OrdersRepo] def applyCoupon(orderId: Int, couponId: Int): Future[Int] = db.run {
+    ordersTableQuery.filter(_.id === orderId).map(_.couponId).update(couponId)
+  }
+
+  private[OrdersRepo] def findActiveCoupon(couponCode: String): Future[Option[Coupon]] = db.run {
+    val now: String = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+    couponsTableQuery.filter(c => c.code === couponCode && c.validFrom <= now && c.validUntil >= now).result.headOption
+  }
 }

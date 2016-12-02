@@ -34,7 +34,8 @@ private[repo] trait OrdersTable { self : HasDatabaseConfigProvider[JdbcProfile] 
     val status = column[String]("status")
     val isSubmitted = column[Boolean]("isSubmitted")
     val isPaid = column[Boolean]("isPaid")
-    def * = (isSubmitted, isPaid, customerId, id, status) <> (Order.tupled , Order.unapply)
+    val couponId = column[Int]("couponId")
+    def * = (isSubmitted, isPaid, customerId, id, status, couponId) <> (Order.tupled , Order.unapply)
   }
 
   protected val ordersTableQuery = TableQuery[OrdersTable]
