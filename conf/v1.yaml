@@ -151,6 +151,8 @@ paths:
       description: Add a product to an order
       consumes:
         - application/json
+      produces:
+        - application/json
       parameters:
         - name: body
           in: body
@@ -185,6 +187,8 @@ paths:
       description: Apply coupon to an order
       consumes:
         - application/json
+      produces:
+        - application/json
       parameters:
         - name: body
           in: body
@@ -200,6 +204,42 @@ paths:
                 format: int32
               couponCode:
                 type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            type: integer
+            format: int32
+        500:
+          description: error
+          schema:
+            $ref: '#/definitions/ErrorModel'
+  /order/submit:
+    x-api-first-handler: 'v1.yaml.OrderHandler.submit'
+    put:
+      tags:
+        - Order
+      description: Submit order
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required:
+              - orderId
+              - shippingAddress
+            properties:
+              orderId:
+                type: integer
+                format: int32
+              shippingAddress:
+                $ref: '#/definitions/ShippingAddress'
+          required: true
       responses:
         200:
           description: OK
@@ -248,30 +288,7 @@ paths:
   #           $ref: '#/definitions/ErrorModel'
 
 
-  # /order/{orderId}/checkout:
-  #   x-api-first-handler: 'v1.yaml.OrderHandler.checkout'
-  #   put:
-  #     tags:
-  #       - Order
-  #     description: Submit order (checkout)
-  #     parameters:
-  #       - name: orderId
-  #         in: path
-  #         type: integer
-  #         format: int32
-  #         required: true
-  #       - name: shippingAddress
-  #         in: body
-  #         schema:
-  #           $ref: '#/definitions/ShippingAddress'
-  #         required: true
-  #     responses:
-  #       200:
-  #         description: OK
-  #       500:
-  #         description: error
-  #         schema:
-  #           $ref: '#/definitions/ErrorModel'
+
   # /order/{orderId}/paymentProff:
   #   x-api-first-handler: 'v1.yaml.OrderHandler.paymentProff'
   #   post:
