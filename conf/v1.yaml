@@ -161,8 +161,8 @@ paths:
       responses:
         200:
           description: OK
-  /order/{order_id}/verified:
-    x-api-first-handler: "v1.yaml.Order.cancel"
+  /order/{order_id}/verify:
+    x-api-first-handler: "v1.yaml.Order.verify"
     put:
       tags:
         - Order
