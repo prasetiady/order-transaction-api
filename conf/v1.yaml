@@ -32,8 +32,8 @@ tags:
 ################################################################################
 paths:
   # Customer Path
-  /customer/{customer_id}/cart:
-    x-api-first-handler: "v1.yaml.Customer.cart"
+  /customer/{customerId}/cart:
+    x-api-first-handler: "v1.yaml.CustomerHandler.cart"
     get:
       tags:
         - Customer
@@ -42,22 +42,22 @@ paths:
         that has not yet been completed). Create new order if user exist but
         shopping cart not found.
       parameters:
-        - name: customer_id
+        - name: customerId
           type: string
           in: path
           required: true
       responses:
         200:
           description: OK
-  /customer/{customer_id}/orders:
-    x-api-first-handler: "v1.yaml.Customer.orders"
+  /customer/{customerId}/orders:
+    x-api-first-handler: "v1.yaml.CustomerHandler.orders"
     get:
       tags:
         - Customer
       description: |
         Return array of order id based on customer id.
       parameters:
-        - name: customer_id
+        - name: customerId
           type: string
           in: path
           required: true
@@ -65,14 +65,14 @@ paths:
         200:
           description: OK
   # Order Path
-  /order/{order_id}:
-    x-api-first-handler: "v1.yaml.Order.order"
+  /order/{orderId}:
+    x-api-first-handler: "v1.yaml.OrderHandler.order"
     get:
       tags:
         - Order
       description: Return order details
       parameters:
-        - name: order_id
+        - name: orderId
           in: path
           type: integer
           format: int32
@@ -80,14 +80,14 @@ paths:
       responses:
         200:
           description: OK
-  /order/{order_id}/lineItem:
-    x-api-first-handler: "v1.yaml.Order.lineItem"
+  /order/{orderId}/lineItem:
+    x-api-first-handler: "v1.yaml.OrderHandler.lineItem"
     post:
       tags:
         - Order
       description: Add product to an order
       parameters:
-        - name: order_id
+        - name: orderId
           type: integer
           format: int32
           in: path
@@ -101,14 +101,14 @@ paths:
       responses:
         200:
           description: OK
-  /order/{order_id}/coupon:
-    x-api-first-handler: "v1.yaml.Order.coupon"
+  /order/{orderId}/coupon:
+    x-api-first-handler: "v1.yaml.OrderHandler.coupon"
     post:
       tags:
         - Order
       description: Apply coupon to an order
       parameters:
-        - name: order_id
+        - name: orderId
           in: path
           type: integer
           format: int32
@@ -121,19 +121,19 @@ paths:
       responses:
         200:
           description: OK
-  /order/{order_id}/checkout:
-    x-api-first-handler: "v1.yaml.Order.checkout"
+  /order/{orderId}/checkout:
+    x-api-first-handler: "v1.yaml.OrderHandler.checkout"
     put:
       tags:
         - Order
       description: Submit order (checkout)
       parameters:
-        - name: order_id
+        - name: orderId
           in: path
           type: integer
           format: int32
           required: true
-        - name: shipping_address
+        - name: shippingAddress
           in: body
           schema:
             $ref: "#/definitions/ShippingAddress"
@@ -141,14 +141,14 @@ paths:
       responses:
         200:
           description: OK
-  /order/{order_id}/paymentProff:
-    x-api-first-handler: "v1.yaml.Order.paymentProff"
+  /order/{orderId}/paymentProff:
+    x-api-first-handler: "v1.yaml.OrderHandler.paymentProff"
     post:
       tags:
         - Order
       description: Pay order, submit payment proff
       parameters:
-        - name: order_id
+        - name: orderId
           in: path
           type: integer
           format: int32
@@ -161,14 +161,14 @@ paths:
       responses:
         200:
           description: OK
-  /order/{order_id}/verify:
-    x-api-first-handler: "v1.yaml.Order.verify"
+  /order/{orderId}/verify:
+    x-api-first-handler: "v1.yaml.OrderHandler.verify"
     put:
       tags:
         - Order
       description: Verify Order
       parameters:
-        - name: order_id
+        - name: orderId
           in: path
           type: integer
           format: int32
@@ -176,14 +176,14 @@ paths:
       responses:
         200:
           description: OK
-  /order/{order_id}/ship:
-    x-api-first-handler: "v1.yaml.Order.ship"
+  /order/{orderId}/ship:
+    x-api-first-handler: "v1.yaml.OrderHandler.ship"
     put:
       tags:
         - Order
       description: Ship Order
       parameters:
-        - name: order_id
+        - name: orderId
           in: path
           type: integer
           format: int32
@@ -191,14 +191,14 @@ paths:
       responses:
         200:
           description: OK
-  /order/{order_id}/cancel:
-    x-api-first-handler: "v1.yaml.Order.cancel"
+  /order/{orderId}/cancel:
+    x-api-first-handler: "v1.yaml.OrderHandler.cancel"
     put:
       tags:
         - Order
       description: Cancel Order
       parameters:
-        - name: order_id
+        - name: orderId
           in: path
           type: integer
           format: int32
@@ -210,22 +210,165 @@ paths:
 #                                 Definitions                                  #
 ################################################################################
 definitions:
-  ShippingAddress:
+  Coupon:
     required:
-      - name
-      - phone_number
-      - email
-      - address
+      - id
+      - code
+      - quantity
+      - validFrom
+      - validUntil
+      - discountAmount
+      - discountType
     properties:
+      id:
+        type: integer
+        format: int32
+      code:
+        type: string
+      quantity:
+        type: integer
+        format: int32
+      validFrom:
+        type: string
+        format: date-time
+      validUntil:
+        type: string
+        format: date-time
+      discountAmount:
+        type: number
+        format: double
+      discountType:
+        type: string
+        default: PERCENTAGE
+        enum:
+          - PERCENTAGE
+          - DECIMAL
+  Product:
+    required:
+      - id
+      - name
+      - price
+      - quantity
+    properties:
+      id:
+        type: integer
+        format: int32
       name:
         type: string
-      phone_number:
+      price:
+        type: number
+        format: double
+      quantity:
+        type: integer
+        format: int32
+  Customer:
+    required:
+      - id
+      - name
+    properties:
+      id:
+        type: integer
+        format: int32
+      name:
+        type: string
+  LineItem:
+    required:
+      - id
+      - orderId
+      - productId
+      - productName
+      - productPrice
+      - quantity
+    properties:
+      id:
+        type: integer
+        format: int32
+      orderId:
+        type: integer
+        format: int32
+      productId:
+        type: integer
+        format: int32
+      productName:
+        type: string
+      productPrice:
+        type: number
+        format: double
+      quantity:
+        type: integer
+        format: int32
+  Order:
+    required:
+      - id
+      - customerId
+      - status
+      - isComplete
+      - isPaid
+    properties:
+      id:
+        type: integer
+        format: int32
+      customerId:
+        type: integer
+        format: int32
+      status:
+        type: string
+        default: NEW
+        enum:
+          - NEW
+          - HOLD
+          - VERIFIED
+          - SHIPPED
+          - CANCELED
+      isComplete:
+        type: boolean
+      isPaid:
+        type: boolean
+  ShippingAddress:
+    required:
+      - id
+      - orderId
+      - address
+      - name
+      - phoneNumber
+      - email
+    properties:
+      id:
+        type: integer
+        format: int32
+      orderId:
+        type: integer
+        format: int32
+      address:
+        type: string
+      name:
+        type: string
+      phoneNumber:
         type: string
       email:
         type: string
-        format: email
-      address:
+  PaymentProff:
+    required:
+      - id
+      - orderId
+      - amount
+      - note
+      - paymentDate
+    properties:
+      id:
+        type: integer
+        format: int32
+      orderId:
+        type: integer
+        format: int32
+      amount:
+        type: number
+        format: double
+      note:
         type: string
+      paymentDate:
+        type: string
+        format: date-time
   ErrorModel:
     required:
       - code
