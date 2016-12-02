@@ -99,3 +99,42 @@ private[repo] trait LineItemsTable { self : HasDatabaseConfigProvider[JdbcProfil
 
   protected val lineItemsTableQuery = TableQuery[LineItemsTable]
 }
+
+/**
+ * ShippingAddressesTable
+ */
+private[repo] trait ShippingAddressesTable { self : HasDatabaseConfigProvider[JdbcProfile] =>
+
+  import driver.api._
+
+  private[ShippingAddressesTable] class ShippingAddressesTable(tag: Tag) extends Table[ShippingAddress](tag, "ShippingAddresses") {
+    val id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+    val orderId = column[Int]("orderId")
+    val address = column[String]("address")
+    val name = column[String]("name")
+    val phoneNumber = column[String]("phoneNumber")
+    val email = column[String]("email")
+    def * = (name, phoneNumber, email, orderId, id, address) <> (ShippingAddress.tupled, ShippingAddress.unapply)
+  }
+
+  protected val shippingAdressesTableQuery = TableQuery[ShippingAddressesTable]
+}
+
+/**
+ * PaymentProffsTable
+ */
+private[repo] trait PaymentProffsTable { self : HasDatabaseConfigProvider[JdbcProfile] =>
+
+  import driver.api._
+
+  private[PaymentProffsTable] class PaymentProffsTable(tag: Tag) extends Table[PaymentProff](tag, "PaymentProffs") {
+    val id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+    val orderId = column[Int]("orderId")
+    val amount = column[Double]("amount")
+    val note = column[String]("note")
+    val paymentDate = column[String]("paymentDate")
+    def * = (orderId, amount, id, note, paymentDate) <> (PaymentProff.tupled, PaymentProff.unapply)
+  }
+
+  protected val paymentProffsTableQuery = TableQuery[PaymentProffsTable]
+}
