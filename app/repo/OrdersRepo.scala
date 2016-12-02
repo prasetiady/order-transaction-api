@@ -40,6 +40,12 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
     }
   }
 
+  /**
+   * @param orderId
+   * @param couponCode
+   * @return
+   * Apply coupon to an order
+   */
   def applyCoupon(orderId: Int, couponCode: String): Future[Int] = Future {
     val order = orderMustBeExists(orderId)
     orderCanOnlyHaveOneCoupon(order)
@@ -52,6 +58,16 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
       }
       case None => throw new Exception("Not found active coupon with code: " + couponCode)
     }
+  }
+
+  /**
+   * @param orderId
+   * @param shippingAddress
+   * @return
+   * Submit order
+   */
+  def submitOrder(orderId: Int, shippingAddress: ShippingAddress): Future[Int] = Future {
+    1
   }
 
   /*
@@ -97,23 +113,46 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
     productsTableQuery.filter(_.id === productId).result.headOption
   }
 
+  /**
+   * @param orderId
+   * @param productId
+   * Get LineItem
+   */
   private[OrdersRepo] def getLineItem(orderId: Int, productId: Int): Future[Option[LineItem]] = db.run {
     lineItemsTableQuery.filter(i => i.orderId === orderId && i.productId === productId).result.headOption
   }
 
+  /**
+   * @param orderId
+   * @param product
+   * Create New LineItem
+   */
   private[OrdersRepo] def createNewLineItem(orderId: Int, product: Product): Future[Int] = db.run {
     (lineItemsTableQuery.map(i => (i.orderId, i.productId, i.productName, i.productPrice, i.quantity))
       returning lineItemsTableQuery.map(_.id)) += (orderId, product.id, product.name, product.price, 1)
   }
 
+  /**
+   * @param lineItem
+   * Increase LineItem quantity by one
+   */
   private[OrdersRepo] def increaseLineItemQuantityByOne(lineItem: LineItem): Future[Int] = db.run {
     lineItemsTableQuery.filter(_.id === lineItem.id).map(_.quantity).update(lineItem.quantity + 1)
   }
 
+  /**
+   * @param orderId
+   * @param couponId
+   * Update Order couponId value
+   */
   private[OrdersRepo] def applyCoupon(orderId: Int, couponId: Int): Future[Int] = db.run {
     ordersTableQuery.filter(_.id === orderId).map(_.couponId).update(couponId)
   }
 
+  /**
+   * @param couponCode
+   * Find active coupon
+   */
   private[OrdersRepo] def findActiveCoupon(couponCode: String): Future[Option[Coupon]] = db.run {
     val now: String = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
     couponsTableQuery.filter(c => c.code === couponCode && c.validFrom <= now && c.validUntil >= now).result.headOption
