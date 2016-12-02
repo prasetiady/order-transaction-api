@@ -15,7 +15,6 @@ import scala.util._
 
 import javax.inject._
 
-import play.api.mvc.Session
 import scala.concurrent.duration._
 import scala.concurrent.{Future,Await}
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -43,14 +42,6 @@ package v1.yaml {
             NotImplementedYet
             // ----- End of unmanaged code area for action  Customer.cartGet
         }
-    
-     // Dead code for absent methodOrder.payPost
-     /*
-            // ----- Start of unmanaged code area for action  Order.payPost
-            NotImplementedYet
-            // ----- End of unmanaged code area for action  Order.payPost
-     */
-
     
     }
 }
@@ -105,14 +96,6 @@ package v1.yaml {
             // ----- End of unmanaged code area for action  Items.itemsPost
         }
     
-     // Dead code for absent methodOrder.payPost
-     /*
-            // ----- Start of unmanaged code area for action  Order.payPost
-            NotImplementedYet
-            // ----- End of unmanaged code area for action  Order.payPost
-     */
-
-    
     }
 }
 package v1.yaml {
@@ -160,14 +143,6 @@ package v1.yaml {
             NotImplementedYet
             // ----- End of unmanaged code area for action  Order.checkoutPut
         }
-    
-     // Dead code for absent methodOrder.payPost
-     /*
-            // ----- Start of unmanaged code area for action  Order.payPost
-            NotImplementedYet
-            // ----- End of unmanaged code area for action  Order.payPost
-     */
-
     
     }
 }
