@@ -59,7 +59,7 @@ package v1.yaml {
 
         // ----- End of unmanaged code area for constructor OrderHandler
         val couponPost = couponPostAction { input: (Int, String) =>
-            val (orderId, coupon_code) = input
+            val (orderId, couponCode) = input
             // ----- Start of unmanaged code area for action  OrderHandler.couponPost
             NotImplementedYet
             // ----- End of unmanaged code area for action  OrderHandler.couponPost
@@ -80,7 +80,7 @@ package v1.yaml {
             // ----- End of unmanaged code area for action  OrderHandler.verifyPut
         }
         val paymentProffPost = paymentProffPostAction { input: (Int, String) =>
-            val (orderId, payment_proff) = input
+            val (orderId, paymentProff) = input
             // ----- Start of unmanaged code area for action  OrderHandler.paymentProffPost
             NotImplementedYet
             // ----- End of unmanaged code area for action  OrderHandler.paymentProffPost
@@ -97,10 +97,38 @@ package v1.yaml {
             // ----- End of unmanaged code area for action  OrderHandler.checkoutPut
         }
         val lineItemPost = lineItemPostAction { input: (Int, Int) =>
-            val (orderId, product_id) = input
+            val (orderId, productId) = input
             // ----- Start of unmanaged code area for action  OrderHandler.lineItemPost
             NotImplementedYet
             // ----- End of unmanaged code area for action  OrderHandler.lineItemPost
+        }
+    
+    }
+}
+package v1.yaml {
+
+    class ProductHandler @Inject() (lifecycle: ApplicationLifecycle, config: ConfigurationProvider) extends ProductHandlerBase {
+        // ----- Start of unmanaged code area for constructor ProductHandler
+        @Inject private var productsRepo: ProductsRepo = null
+        // ----- End of unmanaged code area for constructor ProductHandler
+        val productsGet = productsGetAction {  _ =>  
+            // ----- Start of unmanaged code area for action  ProductHandler.productsGet
+            ProductsGet200(productsRepo.getAllProducts())
+            // ----- End of unmanaged code area for action  ProductHandler.productsGet
+        }
+    
+    }
+}
+package v1.yaml {
+
+    class CouponHandler @Inject() (lifecycle: ApplicationLifecycle, config: ConfigurationProvider) extends CouponHandlerBase {
+        // ----- Start of unmanaged code area for constructor CouponHandler
+        @Inject private var couponsRepo: CouponsRepo = null
+        // ----- End of unmanaged code area for constructor CouponHandler
+        val couponsGet = couponsGetAction {  _ =>  
+            // ----- Start of unmanaged code area for action  CouponHandler.couponsGet
+            CouponsGet200(couponsRepo.getAllCoupons())
+            // ----- End of unmanaged code area for action  CouponHandler.couponsGet
         }
     
     }
