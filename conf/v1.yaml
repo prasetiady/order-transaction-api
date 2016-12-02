@@ -25,10 +25,10 @@ produces:
 #                                   Tags                                       #
 ################################################################################
 tags:
-  - name: Order
   - name: Customer
   - name: Product
   - name: Coupon
+  - name: Order
 ################################################################################
 #                                   Paths                                      #
 ################################################################################
@@ -49,6 +49,30 @@ paths:
             type: array
             items:
               $ref: '#/definitions/Product'
+        500:
+          description: error
+          schema:
+            $ref: '#/definitions/ErrorModel'
+  # Coupon Path
+  /coupons:
+    x-api-first-handler: 'v1.yaml.CouponHandler.coupons'
+    get:
+      tags:
+        - Coupon
+      description: Return all coupons
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Coupon'
+        500:
+          description: error
+          schema:
+            $ref: '#/definitions/ErrorModel'
   # Customer Path
   /customers:
     x-api-first-handler: 'v1.yaml.CustomerHandler.customers'
@@ -65,6 +89,10 @@ paths:
             type: array
             items:
               $ref: '#/definitions/Customer'
+        500:
+          description: error
+          schema:
+            $ref: '#/definitions/ErrorModel'
   /customer/{customerId}/cart:
     x-api-first-handler: 'v1.yaml.CustomerHandler.cart'
     get:
@@ -87,6 +115,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/ShoppingCart'
+        500:
+          description: error
+          schema:
+            $ref: '#/definitions/ErrorModel'
   /customer/{customerId}/orders:
     x-api-first-handler: 'v1.yaml.CustomerHandler.orders'
     get:
@@ -106,6 +138,10 @@ paths:
             type: array
             items:
               $ref: '#/definitions/Order'
+        500:
+          description: error
+          schema:
+            $ref: '#/definitions/ErrorModel'
   # Order Path
   /order/{orderId}:
     x-api-first-handler: 'v1.yaml.OrderHandler.order'
@@ -122,6 +158,10 @@ paths:
       responses:
         200:
           description: OK
+        500:
+          description: error
+          schema:
+            $ref: '#/definitions/ErrorModel'
   /order/{orderId}/lineItem:
     x-api-first-handler: 'v1.yaml.OrderHandler.lineItem'
     post:
@@ -143,6 +183,10 @@ paths:
       responses:
         200:
           description: OK
+        500:
+          description: error
+          schema:
+            $ref: '#/definitions/ErrorModel'
   /order/{orderId}/coupon:
     x-api-first-handler: 'v1.yaml.OrderHandler.coupon'
     post:
@@ -163,6 +207,10 @@ paths:
       responses:
         200:
           description: OK
+        500:
+          description: error
+          schema:
+            $ref: '#/definitions/ErrorModel'
   /order/{orderId}/checkout:
     x-api-first-handler: 'v1.yaml.OrderHandler.checkout'
     put:
@@ -183,6 +231,10 @@ paths:
       responses:
         200:
           description: OK
+        500:
+          description: error
+          schema:
+            $ref: '#/definitions/ErrorModel'
   /order/{orderId}/paymentProff:
     x-api-first-handler: 'v1.yaml.OrderHandler.paymentProff'
     post:
@@ -203,6 +255,10 @@ paths:
       responses:
         200:
           description: OK
+        500:
+          description: error
+          schema:
+            $ref: '#/definitions/ErrorModel'
   /order/{orderId}/verify:
     x-api-first-handler: 'v1.yaml.OrderHandler.verify'
     put:
@@ -218,6 +274,10 @@ paths:
       responses:
         200:
           description: OK
+        500:
+          description: error
+          schema:
+            $ref: '#/definitions/ErrorModel'
   /order/{orderId}/ship:
     x-api-first-handler: 'v1.yaml.OrderHandler.ship'
     put:
@@ -233,6 +293,10 @@ paths:
       responses:
         200:
           description: OK
+        500:
+          description: error
+          schema:
+            $ref: '#/definitions/ErrorModel'
   /order/{orderId}/cancel:
     x-api-first-handler: 'v1.yaml.OrderHandler.cancel'
     put:
@@ -248,6 +312,10 @@ paths:
       responses:
         200:
           description: OK
+        500:
+          description: error
+          schema:
+            $ref: '#/definitions/ErrorModel'
 ################################################################################
 #                                 Definitions                                  #
 ################################################################################
@@ -257,10 +325,10 @@ definitions:
       - id
       - code
       - quantity
-      - validFrom
-      - validUntil
       - discountAmount
       - discountType
+      - validFrom
+      - validUntil
     properties:
       id:
         type: integer
@@ -270,21 +338,21 @@ definitions:
       quantity:
         type: integer
         format: int32
-      validFrom:
-        type: string
-        format: date-time
-      validUntil:
-        type: string
-        format: date-time
       discountAmount:
         type: number
         format: double
       discountType:
         type: string
-        default: PERCENTAGE
-        enum:
-          - PERCENTAGE
-          - DECIMAL
+      validFrom:
+        type: string
+      validUntil:
+        type: string
+  DiscountType:
+    type: string
+    default: PERCENTAGE
+    enum:
+      - PERCENTAGE
+      - DECIMAL
   Product:
     required:
       - id
@@ -350,24 +418,24 @@ definitions:
       - CANCELED
   Order:
     required:
-      - isPaid
-      - isSubmitted
-      - customerId
       - id
+      - customerId
       - status
+      - isSubmitted
+      - isPaid
     properties:
-      isPaid:
-        type: boolean
-      isSubmitted:
-        type: boolean
-      customerId:
-        type: integer
-        format: int32
       id:
         type: integer
         format: int32
+      customerId:
+        type: integer
+        format: int32
       status:
-        $ref: '#/definitions/OrderStatus'
+        type: string
+      isSubmitted:
+        type: boolean
+      isPaid:
+        type: boolean
   ShoppingCart:
     required:
       - orderId
@@ -419,7 +487,6 @@ definitions:
         type: string
       paymentDate:
         type: string
-        format: date-time
   ErrorModel:
     required:
       - code
