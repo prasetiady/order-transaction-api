@@ -68,6 +68,11 @@ package v1.yaml {
             CouponPost200(ordersRepo.applyCoupon(body.orderId, body.couponCode))
             // ----- End of unmanaged code area for action  OrderHandler.couponPost
         }
+        val submitPut = submitPutAction { (body: OrderSubmitPutBody) =>  
+            // ----- Start of unmanaged code area for action  OrderHandler.submitPut
+            SubmitPut200(ordersRepo.submitOrder(body.orderId, body.shippingAddress))
+            // ----- End of unmanaged code area for action  OrderHandler.submitPut
+        }
     
     }
 }
