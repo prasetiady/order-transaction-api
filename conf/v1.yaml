@@ -27,13 +27,31 @@ produces:
 tags:
   - name: Order
   - name: Customer
+  - name: Product
+  - name: Coupon
 ################################################################################
 #                                   Paths                                      #
 ################################################################################
 paths:
+  # Product Path
+  /products:
+    x-api-first-handler: 'v1.yaml.ProductHandler.products'
+    get:
+      tags:
+        - Product
+      description: Return all products
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Product'
   # Customer Path
   /customers:
-    x-api-first-handler: "v1.yaml.CustomerHandler.customers"
+    x-api-first-handler: 'v1.yaml.CustomerHandler.customers'
     get:
       tags:
         - Customer
@@ -48,7 +66,7 @@ paths:
             items:
               $ref: '#/definitions/Customer'
   /customer/{customerId}/cart:
-    x-api-first-handler: "v1.yaml.CustomerHandler.cart"
+    x-api-first-handler: 'v1.yaml.CustomerHandler.cart'
     get:
       tags:
         - Customer
@@ -70,7 +88,7 @@ paths:
           schema:
             $ref: '#/definitions/ShoppingCart'
   /customer/{customerId}/orders:
-    x-api-first-handler: "v1.yaml.CustomerHandler.orders"
+    x-api-first-handler: 'v1.yaml.CustomerHandler.orders'
     get:
       tags:
         - Customer
@@ -90,7 +108,7 @@ paths:
               $ref: '#/definitions/Order'
   # Order Path
   /order/{orderId}:
-    x-api-first-handler: "v1.yaml.OrderHandler.order"
+    x-api-first-handler: 'v1.yaml.OrderHandler.order'
     get:
       tags:
         - Order
@@ -105,7 +123,7 @@ paths:
         200:
           description: OK
   /order/{orderId}/lineItem:
-    x-api-first-handler: "v1.yaml.OrderHandler.lineItem"
+    x-api-first-handler: 'v1.yaml.OrderHandler.lineItem'
     post:
       tags:
         - Order
@@ -116,7 +134,7 @@ paths:
           format: int32
           in: path
           required: true
-        - name: product_id
+        - name: productId
           in: body
           schema:
             type: integer
@@ -126,7 +144,7 @@ paths:
         200:
           description: OK
   /order/{orderId}/coupon:
-    x-api-first-handler: "v1.yaml.OrderHandler.coupon"
+    x-api-first-handler: 'v1.yaml.OrderHandler.coupon'
     post:
       tags:
         - Order
@@ -137,7 +155,7 @@ paths:
           type: integer
           format: int32
           required: true
-        - name: coupon_code
+        - name: couponCode
           in: body
           schema:
             type: string
@@ -146,7 +164,7 @@ paths:
         200:
           description: OK
   /order/{orderId}/checkout:
-    x-api-first-handler: "v1.yaml.OrderHandler.checkout"
+    x-api-first-handler: 'v1.yaml.OrderHandler.checkout'
     put:
       tags:
         - Order
@@ -160,13 +178,13 @@ paths:
         - name: shippingAddress
           in: body
           schema:
-            $ref: "#/definitions/ShippingAddress"
+            $ref: '#/definitions/ShippingAddress'
           required: true
       responses:
         200:
           description: OK
   /order/{orderId}/paymentProff:
-    x-api-first-handler: "v1.yaml.OrderHandler.paymentProff"
+    x-api-first-handler: 'v1.yaml.OrderHandler.paymentProff'
     post:
       tags:
         - Order
@@ -177,7 +195,7 @@ paths:
           type: integer
           format: int32
           required: true
-        - name: payment_proff
+        - name: paymentProff
           in: body
           schema:
             type: string
@@ -186,7 +204,7 @@ paths:
         200:
           description: OK
   /order/{orderId}/verify:
-    x-api-first-handler: "v1.yaml.OrderHandler.verify"
+    x-api-first-handler: 'v1.yaml.OrderHandler.verify'
     put:
       tags:
         - Order
@@ -201,7 +219,7 @@ paths:
         200:
           description: OK
   /order/{orderId}/ship:
-    x-api-first-handler: "v1.yaml.OrderHandler.ship"
+    x-api-first-handler: 'v1.yaml.OrderHandler.ship'
     put:
       tags:
         - Order
@@ -216,7 +234,7 @@ paths:
         200:
           description: OK
   /order/{orderId}/cancel:
-    x-api-first-handler: "v1.yaml.OrderHandler.cancel"
+    x-api-first-handler: 'v1.yaml.OrderHandler.cancel'
     put:
       tags:
         - Order
@@ -263,10 +281,10 @@ definitions:
         format: double
       discountType:
         type: string
-        # default: PERCENTAGE
-        # enum:
-        #   - PERCENTAGE
-        #   - DECIMAL
+        default: PERCENTAGE
+        enum:
+          - PERCENTAGE
+          - DECIMAL
   Product:
     required:
       - id
@@ -321,6 +339,15 @@ definitions:
       quantity:
         type: integer
         format: int32
+  OrderStatus:
+    type: string
+    default: NEW
+    enum:
+      - NEW
+      - HOLD
+      - VERIFIED
+      - SHIPPED
+      - CANCELED
   Order:
     required:
       - isPaid
@@ -340,7 +367,7 @@ definitions:
         type: integer
         format: int32
       status:
-        type: string
+        $ref: '#/definitions/OrderStatus'
   ShoppingCart:
     required:
       - orderId
