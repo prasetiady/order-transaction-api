@@ -1,14 +1,15 @@
-# PaymentProff schema
+# PaymentProffs schema
 
 # --- !Ups
-CREATE TABLE PaymentProff (
+CREATE TABLE PaymentProffs (
   id INT(11) NOT NULL AUTO_INCREMENT,
+  orderId INT(11) NOT NULL,
   amount INT(11) NOT NULL,
   note VARCHAR(255) NOT NULL,
-  paymentDate DATETIME DEFAULT CURRENT_TIMESTAMP, 
+  paymentDate DATETIME DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  FOREIGN KEY (orderId) REFERENCES Orders(id) ON DELETE CASCADE,
+  FOREIGN KEY (orderId) REFERENCES Orders(id) ON DELETE CASCADE
 );
 
 # --- !Downs
-DROP TABLE PaymentProff;
+DROP TABLE PaymentProffs;

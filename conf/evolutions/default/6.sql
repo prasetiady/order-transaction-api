@@ -1,7 +1,7 @@
-# ShippingAddress schema
+# ShippingAddresses schema
 
 # --- !Ups
-CREATE TABLE ShippingAddress (
+CREATE TABLE ShippingAddresses (
   id INT(11) NOT NULL AUTO_INCREMENT,
   orderId INT(11) NOT NULL,
   address VARCHAR(255) NOT NULL,
@@ -9,8 +9,8 @@ CREATE TABLE ShippingAddress (
   phoneNumber VARCHAR(255) NOT NULL,
   email VARCHAR(255) NOT NULL,
   PRIMARY KEY (id),
-  FOREIGN KEY (orderId) REFERENCES Orders(id) ON DELETE CASCADE,
+  FOREIGN KEY (orderId) REFERENCES Orders(id) ON DELETE CASCADE
 );
 
 # --- !Downs
-DROP TABLE ShippingAddress;
+DROP TABLE ShippingAddresses;
