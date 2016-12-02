@@ -143,179 +143,204 @@ paths:
           schema:
             $ref: '#/definitions/ErrorModel'
   # Order Path
-  /order/{orderId}:
-    x-api-first-handler: 'v1.yaml.OrderHandler.order'
-    get:
-      tags:
-        - Order
-      description: Return order details
-      parameters:
-        - name: orderId
-          in: path
-          type: integer
-          format: int32
-          required: true
-      responses:
-        200:
-          description: OK
-        500:
-          description: error
-          schema:
-            $ref: '#/definitions/ErrorModel'
-  /order/{orderId}/lineItem:
-    x-api-first-handler: 'v1.yaml.OrderHandler.lineItem'
+  /order/product:
+    x-api-first-handler: 'v1.yaml.OrderHandler.product'
     post:
       tags:
         - Order
-      description: Add product to an order
+      description: Add a product to an order
       parameters:
-        - name: orderId
-          type: integer
-          format: int32
-          in: path
-          required: true
-        - name: productId
+        - name: body
           in: body
+          required: true
+          schema:
+            type: object
+            required:
+              - orderId
+              - productId
+            properties:
+              orderId:
+                type: integer
+                format: int32
+              productId:
+                type: integer
+                format: int32
+      responses:
+        200:
+          description: OK
           schema:
             type: integer
             format: int32
-          required: true
-      responses:
-        200:
-          description: OK
         500:
           description: error
           schema:
             $ref: '#/definitions/ErrorModel'
-  /order/{orderId}/coupon:
-    x-api-first-handler: 'v1.yaml.OrderHandler.coupon'
-    post:
-      tags:
-        - Order
-      description: Apply coupon to an order
-      parameters:
-        - name: orderId
-          in: path
-          type: integer
-          format: int32
-          required: true
-        - name: couponCode
-          in: body
-          schema:
-            type: string
-          required: true
-      responses:
-        200:
-          description: OK
-        500:
-          description: error
-          schema:
-            $ref: '#/definitions/ErrorModel'
-  /order/{orderId}/checkout:
-    x-api-first-handler: 'v1.yaml.OrderHandler.checkout'
-    put:
-      tags:
-        - Order
-      description: Submit order (checkout)
-      parameters:
-        - name: orderId
-          in: path
-          type: integer
-          format: int32
-          required: true
-        - name: shippingAddress
-          in: body
-          schema:
-            $ref: '#/definitions/ShippingAddress'
-          required: true
-      responses:
-        200:
-          description: OK
-        500:
-          description: error
-          schema:
-            $ref: '#/definitions/ErrorModel'
-  /order/{orderId}/paymentProff:
-    x-api-first-handler: 'v1.yaml.OrderHandler.paymentProff'
-    post:
-      tags:
-        - Order
-      description: Pay order, submit payment proff
-      parameters:
-        - name: orderId
-          in: path
-          type: integer
-          format: int32
-          required: true
-        - name: paymentProff
-          in: body
-          schema:
-            type: string
-          required: true
-      responses:
-        200:
-          description: OK
-        500:
-          description: error
-          schema:
-            $ref: '#/definitions/ErrorModel'
-  /order/{orderId}/verify:
-    x-api-first-handler: 'v1.yaml.OrderHandler.verify'
-    put:
-      tags:
-        - Order
-      description: Verify Order
-      parameters:
-        - name: orderId
-          in: path
-          type: integer
-          format: int32
-          required: true
-      responses:
-        200:
-          description: OK
-        500:
-          description: error
-          schema:
-            $ref: '#/definitions/ErrorModel'
-  /order/{orderId}/ship:
-    x-api-first-handler: 'v1.yaml.OrderHandler.ship'
-    put:
-      tags:
-        - Order
-      description: Ship Order
-      parameters:
-        - name: orderId
-          in: path
-          type: integer
-          format: int32
-          required: true
-      responses:
-        200:
-          description: OK
-        500:
-          description: error
-          schema:
-            $ref: '#/definitions/ErrorModel'
-  /order/{orderId}/cancel:
-    x-api-first-handler: 'v1.yaml.OrderHandler.cancel'
-    put:
-      tags:
-        - Order
-      description: Cancel Order
-      parameters:
-        - name: orderId
-          in: path
-          type: integer
-          format: int32
-          required: true
-      responses:
-        200:
-          description: OK
-        500:
-          description: error
-          schema:
-            $ref: '#/definitions/ErrorModel'
+  # /order/lineItems:
+  #   x-api-first-handler: 'v1.yaml.OrderHandler.lineItems'
+  #   get:
+  #     tags:
+  #       - Order
+  #     description: Return all lineItems
+  #     responses:
+  #       200:
+  #         description: OK
+  #         schema:
+  #           type: array
+  #           items:
+  #             $ref: '#/definitions/LineItem'
+  #       500:
+  #         description: error
+  #         schema:
+  #           $ref: '#/definitions/ErrorModel'
+  # /order/{orderId}:
+  #   x-api-first-handler: 'v1.yaml.OrderHandler.order'
+  #   get:
+  #     tags:
+  #       - Order
+  #     description: Return order details
+  #     parameters:
+  #       - name: orderId
+  #         in: path
+  #         type: integer
+  #         format: int32
+  #         required: true
+  #     responses:
+  #       200:
+  #         description: OK
+  #       500:
+  #         description: error
+  #         schema:
+  #           $ref: '#/definitions/ErrorModel'
+
+  # /order/{orderId}/coupon:
+  #   x-api-first-handler: 'v1.yaml.OrderHandler.coupon'
+  #   post:
+  #     tags:
+  #       - Order
+  #     description: Apply coupon to an order
+  #     parameters:
+  #       - name: orderId
+  #         in: path
+  #         type: integer
+  #         format: int32
+  #         required: true
+  #       - name: couponCode
+  #         in: body
+  #         schema:
+  #           type: string
+  #         required: true
+  #     responses:
+  #       200:
+  #         description: OK
+  #       500:
+  #         description: error
+  #         schema:
+  #           $ref: '#/definitions/ErrorModel'
+  # /order/{orderId}/checkout:
+  #   x-api-first-handler: 'v1.yaml.OrderHandler.checkout'
+  #   put:
+  #     tags:
+  #       - Order
+  #     description: Submit order (checkout)
+  #     parameters:
+  #       - name: orderId
+  #         in: path
+  #         type: integer
+  #         format: int32
+  #         required: true
+  #       - name: shippingAddress
+  #         in: body
+  #         schema:
+  #           $ref: '#/definitions/ShippingAddress'
+  #         required: true
+  #     responses:
+  #       200:
+  #         description: OK
+  #       500:
+  #         description: error
+  #         schema:
+  #           $ref: '#/definitions/ErrorModel'
+  # /order/{orderId}/paymentProff:
+  #   x-api-first-handler: 'v1.yaml.OrderHandler.paymentProff'
+  #   post:
+  #     tags:
+  #       - Order
+  #     description: Pay order, submit payment proff
+  #     parameters:
+  #       - name: orderId
+  #         in: path
+  #         type: integer
+  #         format: int32
+  #         required: true
+  #       - name: paymentProff
+  #         in: body
+  #         schema:
+  #           type: string
+  #         required: true
+  #     responses:
+  #       200:
+  #         description: OK
+  #       500:
+  #         description: error
+  #         schema:
+  #           $ref: '#/definitions/ErrorModel'
+  # /order/{orderId}/verify:
+  #   x-api-first-handler: 'v1.yaml.OrderHandler.verify'
+  #   put:
+  #     tags:
+  #       - Order
+  #     description: Verify Order
+  #     parameters:
+  #       - name: orderId
+  #         in: path
+  #         type: integer
+  #         format: int32
+  #         required: true
+  #     responses:
+  #       200:
+  #         description: OK
+  #       500:
+  #         description: error
+  #         schema:
+  #           $ref: '#/definitions/ErrorModel'
+  # /order/{orderId}/ship:
+  #   x-api-first-handler: 'v1.yaml.OrderHandler.ship'
+  #   put:
+  #     tags:
+  #       - Order
+  #     description: Ship Order
+  #     parameters:
+  #       - name: orderId
+  #         in: path
+  #         type: integer
+  #         format: int32
+  #         required: true
+  #     responses:
+  #       200:
+  #         description: OK
+  #       500:
+  #         description: error
+  #         schema:
+  #           $ref: '#/definitions/ErrorModel'
+  # /order/{orderId}/cancel:
+  #   x-api-first-handler: 'v1.yaml.OrderHandler.cancel'
+  #   put:
+  #     tags:
+  #       - Order
+  #     description: Cancel Order
+  #     parameters:
+  #       - name: orderId
+  #         in: path
+  #         type: integer
+  #         format: int32
+  #         required: true
+  #     responses:
+  #       200:
+  #         description: OK
+  #       500:
+  #         description: error
+  #         schema:
+  #           $ref: '#/definitions/ErrorModel'
 ################################################################################
 #                                 Definitions                                  #
 ################################################################################

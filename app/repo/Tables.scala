@@ -78,3 +78,23 @@ private[repo] trait CouponsTable { self : HasDatabaseConfigProvider[JdbcProfile]
 
   protected val couponsTableQuery = TableQuery[CouponsTable]
 }
+
+/**
+ * LineItemsTable
+ */
+private[repo] trait LineItemsTable { self : HasDatabaseConfigProvider[JdbcProfile] =>
+
+  import driver.api._
+
+  private[LineItemsTable] class LineItemsTable(tag: Tag) extends Table[LineItem](tag, "LineItems") {
+    val id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+    val orderId = column[Int]("orderId")
+    val productId = column[Int]("productId")
+    val productName = column[String]("productName")
+    val productPrice = column[Double]("productPrice")
+    val quantity = column[Int]("quantity")
+    def * = (quantity, productPrice, orderId, id, productName, productId) <> (LineItem.tupled, LineItem.unapply)
+  }
+
+  protected val lineItemsTableQuery = TableQuery[LineItemsTable]
+}

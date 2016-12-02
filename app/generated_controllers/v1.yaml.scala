@@ -56,51 +56,12 @@ package v1.yaml {
 
     class OrderHandler @Inject() (lifecycle: ApplicationLifecycle, config: ConfigurationProvider) extends OrderHandlerBase {
         // ----- Start of unmanaged code area for constructor OrderHandler
-
+        @Inject private var ordersRepo: OrdersRepo = null
         // ----- End of unmanaged code area for constructor OrderHandler
-        val couponPost = couponPostAction { input: (Int, String) =>
-            val (orderId, couponCode) = input
-            // ----- Start of unmanaged code area for action  OrderHandler.couponPost
-            NotImplementedYet
-            // ----- End of unmanaged code area for action  OrderHandler.couponPost
-        }
-        val orderGet = orderGetAction { (orderId: Int) =>  
-            // ----- Start of unmanaged code area for action  OrderHandler.orderGet
-            NotImplementedYet
-            // ----- End of unmanaged code area for action  OrderHandler.orderGet
-        }
-        val shipPut = shipPutAction { (orderId: Int) =>  
-            // ----- Start of unmanaged code area for action  OrderHandler.shipPut
-            NotImplementedYet
-            // ----- End of unmanaged code area for action  OrderHandler.shipPut
-        }
-        val verifyPut = verifyPutAction { (orderId: Int) =>  
-            // ----- Start of unmanaged code area for action  OrderHandler.verifyPut
-            NotImplementedYet
-            // ----- End of unmanaged code area for action  OrderHandler.verifyPut
-        }
-        val paymentProffPost = paymentProffPostAction { input: (Int, String) =>
-            val (orderId, paymentProff) = input
-            // ----- Start of unmanaged code area for action  OrderHandler.paymentProffPost
-            NotImplementedYet
-            // ----- End of unmanaged code area for action  OrderHandler.paymentProffPost
-        }
-        val cancelPut = cancelPutAction { (orderId: Int) =>  
-            // ----- Start of unmanaged code area for action  OrderHandler.cancelPut
-            NotImplementedYet
-            // ----- End of unmanaged code area for action  OrderHandler.cancelPut
-        }
-        val checkoutPut = checkoutPutAction { input: (Int, ShippingAddress) =>
-            val (orderId, shippingAddress) = input
-            // ----- Start of unmanaged code area for action  OrderHandler.checkoutPut
-            NotImplementedYet
-            // ----- End of unmanaged code area for action  OrderHandler.checkoutPut
-        }
-        val lineItemPost = lineItemPostAction { input: (Int, Int) =>
-            val (orderId, productId) = input
-            // ----- Start of unmanaged code area for action  OrderHandler.lineItemPost
-            NotImplementedYet
-            // ----- End of unmanaged code area for action  OrderHandler.lineItemPost
+        val productPost = productPostAction { (body: OrderProductPostBody) =>  
+            // ----- Start of unmanaged code area for action  OrderHandler.productPost
+            ProductPost200(ordersRepo.addProductToOrder(body.orderId, body.productId))
+            // ----- End of unmanaged code area for action  OrderHandler.productPost
         }
     
     }
