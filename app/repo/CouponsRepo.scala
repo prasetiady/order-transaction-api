@@ -14,6 +14,6 @@ class CouponsRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvid
    * @return
    * Get all products
    */
-  def getAllCoupons(): Future[List[Coupon]] = db.run { couponsTableQuery.to[List].result }
+  def getAllCoupons(): Future[List[Coupon]] = db.run { Coupons.to[List].result }
 
 }

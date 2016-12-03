@@ -14,6 +14,6 @@ class ProductsRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvi
    * @return
    * Get all products
    */
-  def getAllProducts(): Future[List[Product]] = db.run { productsTableQuery.to[List].result }
+  def getAllProducts(): Future[List[Product]] = db.run { Products.to[List].result }
 
 }

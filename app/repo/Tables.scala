@@ -18,7 +18,7 @@ private[repo] trait CustomersTable { self : HasDatabaseConfigProvider[JdbcProfil
     def * = (id, name) <> (Customer.tupled , Customer.unapply)
   }
 
-  protected val customersTableQuery = TableQuery[CustomersTable]
+  protected val Customers = TableQuery[CustomersTable]
 }
 
 /**
@@ -38,7 +38,7 @@ private[repo] trait OrdersTable { self : HasDatabaseConfigProvider[JdbcProfile] 
     def * = (isSubmitted, isPaid, customerId, id, status, couponId) <> (Order.tupled , Order.unapply)
   }
 
-  protected val ordersTableQuery = TableQuery[OrdersTable]
+  protected val Orders = TableQuery[OrdersTable]
 }
 
 /**
@@ -56,7 +56,7 @@ private[repo] trait ProductsTable { self : HasDatabaseConfigProvider[JdbcProfile
     def * = (id, name, price, quantity) <> (Product.tupled , Product.unapply)
   }
 
-  protected val productsTableQuery = TableQuery[ProductsTable]
+  protected val Products = TableQuery[ProductsTable]
 }
 
 /**
@@ -77,7 +77,7 @@ private[repo] trait CouponsTable { self : HasDatabaseConfigProvider[JdbcProfile]
     def * = (quantity, discountType, validUntil, validFrom, code, id, discountAmount) <> (Coupon.tupled , Coupon.unapply)
   }
 
-  protected val couponsTableQuery = TableQuery[CouponsTable]
+  protected val Coupons = TableQuery[CouponsTable]
 }
 
 /**
@@ -97,7 +97,7 @@ private[repo] trait LineItemsTable { self : HasDatabaseConfigProvider[JdbcProfil
     def * = (quantity, productPrice, orderId, id, productName, productId) <> (LineItem.tupled, LineItem.unapply)
   }
 
-  protected val lineItemsTableQuery = TableQuery[LineItemsTable]
+  protected val LineItems = TableQuery[LineItemsTable]
 }
 
 /**
@@ -117,7 +117,7 @@ private[repo] trait ShippingAddressesTable { self : HasDatabaseConfigProvider[Jd
     def * = (name, phoneNumber, email, orderId, id, address) <> (ShippingAddress.tupled, ShippingAddress.unapply)
   }
 
-  protected val shippingAdressesTableQuery = TableQuery[ShippingAddressesTable]
+  protected val ShippingAdresses = TableQuery[ShippingAddressesTable]
 }
 
 /**

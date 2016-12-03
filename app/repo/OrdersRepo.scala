@@ -72,8 +72,8 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
     val order = orderMustBeExists(orderId)
     orderMustHasNotBeenSubmitted(order)
     val q1 = for {
-      l <- lineItemsTableQuery.filter(_.orderId === orderId)
-      p <- productsTableQuery if l.productId === p.id
+      l <- LineItems.filter(_.orderId === orderId)
+      p <- Products if l.productId === p.id
     } yield (p.id, p.quantity, l.quantity)
     val q2 = q1.result
     val items: Seq[(Int,Int,Int)] = Await.result(db.run(q2), Duration.Inf)
@@ -177,7 +177,7 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
    * Rule: Order must be exists
    */
   private[OrdersRepo] def orderMustBeExists(orderId: Int): Order = {
-    val orderOption: Option[Order] = Await.result(db.run(ordersTableQuery.filter(_.id === orderId).result.headOption), Duration.Inf)
+    val orderOption: Option[Order] = Await.result(db.run(Orders.filter(_.id === orderId).result.headOption), Duration.Inf)
     orderOption match {
       case Some(order) => order
       case None => throw new Exception("Not found order with id: " + orderId)
@@ -195,7 +195,7 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
    * Get product by productId
    */
   private[OrdersRepo] def getProductById(productId: Int): Future[Option[Product]] = db.run {
-    productsTableQuery.filter(_.id === productId).result.headOption
+    Products.filter(_.id === productId).result.headOption
   }
 
   /**
@@ -204,7 +204,7 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
    * Get LineItem
    */
   private[OrdersRepo] def getLineItem(orderId: Int, productId: Int): Future[Option[LineItem]] = db.run {
-    lineItemsTableQuery.filter(i => i.orderId === orderId && i.productId === productId).result.headOption
+    LineItems.filter(i => i.orderId === orderId && i.productId === productId).result.headOption
   }
 
   /**
@@ -213,8 +213,8 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
    * Create New LineItem
    */
   private[OrdersRepo] def createNewLineItem(orderId: Int, product: Product): Future[Int] = db.run {
-    (lineItemsTableQuery.map(i => (i.orderId, i.productId, i.productName, i.productPrice, i.quantity))
-      returning lineItemsTableQuery.map(_.id)) += (orderId, product.id, product.name, product.price, 1)
+    (LineItems.map(i => (i.orderId, i.productId, i.productName, i.productPrice, i.quantity))
+      returning LineItems.map(_.id)) += (orderId, product.id, product.name, product.price, 1)
   }
 
   /**
@@ -222,7 +222,7 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
    * Increase LineItem quantity by one
    */
   private[OrdersRepo] def increaseLineItemQuantityByOne(lineItem: LineItem): Future[Int] = db.run {
-    lineItemsTableQuery.filter(_.id === lineItem.id).map(_.quantity).update(lineItem.quantity + 1)
+    LineItems.filter(_.id === lineItem.id).map(_.quantity).update(lineItem.quantity + 1)
   }
 
   /**
@@ -230,7 +230,7 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
    * Reduce Coupon quantity by one
    */
   private[OrdersRepo] def reduceCouponQuantityByOne(coupon: Coupon): Future[Int] = db.run {
-    couponsTableQuery.filter(_.id === coupon.id).map(_.quantity).update(coupon.quantity - 1)
+    Coupons.filter(_.id === coupon.id).map(_.quantity).update(coupon.quantity - 1)
   }
 
   /**
@@ -239,7 +239,7 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
    */
   private[OrdersRepo] def reduceProductQuantity(items: Seq[(Int, Int, Int)]): Future[Unit] = Future {
     items foreach ( item =>
-      db.run { productsTableQuery.filter(_.id === item._1).map(_.quantity).update(item._2 - item._3) }
+      db.run { Products.filter(_.id === item._1).map(_.quantity).update(item._2 - item._3) }
     )
   }
 
@@ -248,7 +248,7 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
    * Mark Order as Submitted
    */
   private[OrdersRepo] def markOrderAsSubmitted(order: Order): Future[Unit] = Future {
-    db.run{ ordersTableQuery.filter(_.id === order.id).map(o => (o.isSubmitted, o.status)).update(true,"HOLD") }
+    db.run{ Orders.filter(_.id === order.id).map(o => (o.isSubmitted, o.status)).update(true,"HOLD") }
   }
 
   /**
@@ -256,7 +256,7 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
    * Mark Order as Paid
    */
   private[OrdersRepo] def markOrderAsPaid(orderId: Int): Future[Unit] = Future {
-    db.run{ ordersTableQuery.filter(_.id === orderId).map(o => (o.isPaid)).update(true) }
+    db.run{ Orders.filter(_.id === orderId).map(o => (o.isPaid)).update(true) }
   }
 
   /**
@@ -264,7 +264,7 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
    * Mark Order as Verified
    */
   private[OrdersRepo] def markOrderAsVerified(orderId: Int): Future[Unit] = Future {
-    db.run{ ordersTableQuery.filter(_.id === orderId).map(o => (o.status)).update("VERIFIED") }
+    db.run{ Orders.filter(_.id === orderId).map(o => (o.status)).update("VERIFIED") }
   }
 
   /**
@@ -272,7 +272,7 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
    * Mark Order as Shipped
    */
   private[OrdersRepo] def markOrderAsShipped(orderId: Int): Future[Unit] = Future {
-    db.run{ ordersTableQuery.filter(_.id === orderId).map(o => (o.status)).update("SHIPPED") }
+    db.run{ Orders.filter(_.id === orderId).map(o => (o.status)).update("SHIPPED") }
   }
 
   /**
@@ -280,7 +280,7 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
    * Mark Order as Canceled
    */
   private[OrdersRepo] def markOrderAsCanceled(orderId: Int): Future[Unit] = Future {
-    db.run{ ordersTableQuery.filter(_.id === orderId).map(o => (o.status)).update("CANCELED") }
+    db.run{ Orders.filter(_.id === orderId).map(o => (o.status)).update("CANCELED") }
   }
 
   /**
@@ -289,7 +289,7 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
    * Update Order couponId value
    */
   private[OrdersRepo] def applyCoupon(orderId: Int, couponId: Int): Future[Int] = db.run {
-    ordersTableQuery.filter(_.id === orderId).map(_.couponId).update(couponId)
+    Orders.filter(_.id === orderId).map(_.couponId).update(couponId)
   }
 
   /**
@@ -298,14 +298,14 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
    */
   private[OrdersRepo] def findActiveCoupon(couponCode: String): Future[Option[Coupon]] = db.run {
     val now: String = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-    couponsTableQuery.filter(c => c.code === couponCode && c.validFrom <= now && c.validUntil >= now).result.headOption
+    Coupons.filter(c => c.code === couponCode && c.validFrom <= now && c.validUntil >= now).result.headOption
   }
 
   /**
    * @param couponId
    */
   private[OrdersRepo] def getCoupon(couponId: Int): Future[Option[Coupon]] = db.run {
-    couponsTableQuery.filter(_.id === couponId).result.headOption
+    Coupons.filter(_.id === couponId).result.headOption
   }
 
   /**
@@ -314,7 +314,7 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
    * Add shipping address
    */
   private[OrdersRepo] def addShippingAddress(orderId: Int, shippingAddress: NewShippingAddress): Future[Int] = db.run {
-    (shippingAdressesTableQuery.map(sa => (sa.orderId, sa.address, sa.name, sa.phoneNumber, sa.email)) returning shippingAdressesTableQuery.map(_.id)) +=
+    (ShippingAdresses.map(sa => (sa.orderId, sa.address, sa.name, sa.phoneNumber, sa.email)) returning ShippingAdresses.map(_.id)) +=
       (orderId, shippingAddress.address, shippingAddress.name, shippingAddress.phoneNumber, shippingAddress.email)
   }
 

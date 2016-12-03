@@ -16,13 +16,13 @@ class CustomersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProv
    * @return
    * Get all customers
    */
-  def getAllCustomers(): Future[List[Customer]] = db.run { customersTableQuery.to[List].result }
+  def getAllCustomers(): Future[List[Customer]] = db.run { Customers.to[List].result }
 
   /**
    * @param customerId
    * Get all order for given customerId
    */
-  def getAllCustomerOrders(customerId: Int): Future[List[Order]] = db.run { ordersTableQuery.filter(_.customerId === customerId).to[List].result }
+  def getAllCustomerOrders(customerId: Int): Future[List[Order]] = db.run { Orders.filter(_.customerId === customerId).to[List].result }
 
   /**
    * @param customerId
@@ -48,7 +48,7 @@ class CustomersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProv
    * Check if customer with given id exists
    */
   private[CustomersRepo] def isCustomerExists(customerId: Int): Future[Boolean] = db.run {
-    customersTableQuery.filter(_.id === customerId).exists.result
+    Customers.filter(_.id === customerId).exists.result
   }
 
   /**
@@ -56,7 +56,7 @@ class CustomersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProv
    * Return order id with isSubmitted value false
    */
   private[CustomersRepo] def getActiveOrder(customerId: Int): Future[Option[Int]] = db.run {
-    ordersTableQuery.filter(o =>
+    Orders.filter(o =>
       o.customerId === customerId && o.isSubmitted === false
     ).map(_.id).result.headOption
   }
@@ -66,7 +66,7 @@ class CustomersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProv
    * Return order id with isSubmitted value false
    */
   private[CustomersRepo] def createNewOrder(customerId: Int): Future[Int] = db.run {
-    (ordersTableQuery.map(o => (o.customerId)) returning ordersTableQuery.map(_.id)) += (customerId)
+    (Orders.map(o => (o.customerId)) returning Orders.map(_.id)) += (customerId)
   }
 
 }
