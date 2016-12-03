@@ -4,7 +4,7 @@ swagger: '2.0'
 ################################################################################
 info:
   version: 1.0
-  title: Order Transaction API
+  title: Order Transaction API - V1
   description: |
     This is specification for Order Transaction API
   contact:
@@ -33,46 +33,6 @@ tags:
 #                                   Paths                                      #
 ################################################################################
 paths:
-  # Product Path
-  /products:
-    x-api-first-handler: 'v1.yaml.ProductHandler.products'
-    get:
-      tags:
-        - Product
-      description: Return all products
-      produces:
-        - application/json
-      responses:
-        200:
-          description: OK
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/Product'
-        500:
-          description: error
-          schema:
-            $ref: '#/definitions/ErrorModel'
-  # Coupon Path
-  /coupons:
-    x-api-first-handler: 'v1.yaml.CouponHandler.coupons'
-    get:
-      tags:
-        - Coupon
-      description: Return all coupons
-      produces:
-        - application/json
-      responses:
-        200:
-          description: OK
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/Coupon'
-        500:
-          description: error
-          schema:
-            $ref: '#/definitions/ErrorModel'
   # Customer Path
   /customers:
     x-api-first-handler: 'v1.yaml.CustomerHandler.customers'
@@ -142,26 +102,89 @@ paths:
           description: error
           schema:
             $ref: '#/definitions/ErrorModel'
+  # Product Path
+  /products:
+    x-api-first-handler: 'v1.yaml.ProductHandler.products'
+    get:
+      tags:
+        - Product
+      description: Return all products
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Product'
+        500:
+          description: error
+          schema:
+            $ref: '#/definitions/ErrorModel'
+  # Coupon Path
+  /coupons:
+    x-api-first-handler: 'v1.yaml.CouponHandler.coupons'
+    get:
+      tags:
+        - Coupon
+      description: Return all coupons
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Coupon'
+        500:
+          description: error
+          schema:
+            $ref: '#/definitions/ErrorModel'
   # Order Path
-  # /order/{orderId}:
-  #   x-api-first-handler: 'v1.yaml.OrderHandler.order'
-  #   get:
-  #     tags:
-  #       - Order
-  #     description: Return order details
-  #     parameters:
-  #       - name: orderId
-  #         in: path
-  #         type: integer
-  #         format: int32
-  #         required: true
-  #     responses:
-  #       200:
-  #         description: OK
-  #       500:
-  #         description: error
-  #         schema:
-  #           $ref: '#/definitions/ErrorModel'
+  /orders:
+    x-api-first-handler: 'v1.yaml.OrderHandler.orders'
+    get:
+      tags:
+        - Order
+      description: Return all orders
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Order'
+        500:
+          description: error
+          schema:
+            $ref: '#/definitions/ErrorModel'
+  /order/{orderId}:
+    x-api-first-handler: 'v1.yaml.OrderHandler.order'
+    get:
+      tags:
+        - Order
+      description: Return order details
+      produces:
+        - application/json
+      parameters:
+        - name: orderId
+          type: integer
+          format: int32
+          in: path
+          required: true
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/OrderDetail'
+        500:
+          description: error
+          schema:
+            $ref: '#/definitions/ErrorModel'
   /order/product:
     x-api-first-handler: 'v1.yaml.OrderHandler.product'
     post:
@@ -479,6 +502,21 @@ definitions:
       orderId:
         type: integer
         format: int32
+  OrderDetail:
+    required:
+      - orderInfo
+      - lineItems
+    properties:
+      orderInfo:
+        $ref: '#/definitions/Order'
+      lineItems:
+        type: array
+        items:
+          $ref: '#/definitions/LineItem'
+      paymentProff:
+        $ref: '#/definitions/PaymentProff'
+      shippingAddress:
+        $ref: '#/definitions/ShippingAddress'
   NewShippingAddress:
     required:
       - address

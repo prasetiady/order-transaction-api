@@ -15,6 +15,29 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
   import driver.api._
 
   /**
+   * @return
+   * Get all orders
+   */
+  def getAllOrders(): Future[List[Order]] = db.run { Orders.to[List].result }
+
+  /**
+   * @param orderId
+   * @return
+   * Get order detail
+   */
+  def getOrderDetail(orderId: Int): Future[OrderDetail] = Future {
+    val order = orderMustBeExists(orderId)
+    val query: Future[(List[LineItem], Option[PaymentProff], Option[ShippingAddress])] =
+    for {
+      l <- db.run { LineItems.filter(_.orderId === orderId).to[List].result }
+      p <- db.run { PaymentProffs.filter(_.orderId === orderId).result.headOption }
+      s <- db.run { ShippingAdresses.filter(_.orderId === orderId).result.headOption }
+    } yield (l, p, s)
+    val result: (List[LineItem], Option[PaymentProff], Option[ShippingAddress]) = Await.result(query, Duration.Inf)
+    OrderDetail(order, result._1, result._2, result._3)
+  }
+
+  /**
    * @param orderId
    * @param productId
    * @return

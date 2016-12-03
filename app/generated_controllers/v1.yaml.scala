@@ -70,6 +70,11 @@ package v1.yaml {
             CouponPost200()
             // ----- End of unmanaged code area for action  OrderHandler.couponPost
         }
+        val orderGet = orderGetAction { (orderId: Int) =>  
+            // ----- Start of unmanaged code area for action  OrderHandler.orderGet
+            OrderGet200(ordersRepo.getOrderDetail(orderId))
+            // ----- End of unmanaged code area for action  OrderHandler.orderGet
+        }
         val verifyPut = verifyPutAction { (body: SimpleOrder) =>  
             // ----- Start of unmanaged code area for action  OrderHandler.verifyPut
             Await.ready(ordersRepo.verifyOrder(body.orderId), Duration.Inf)
@@ -93,6 +98,11 @@ package v1.yaml {
             Await.ready(ordersRepo.shipOrder(body.orderId), Duration.Inf)
             ShipPut200()
             // ----- End of unmanaged code area for action  OrderHandler.shipPut
+        }
+        val ordersGet = ordersGetAction {  _ =>  
+            // ----- Start of unmanaged code area for action  OrderHandler.ordersGet
+            OrdersGet200(ordersRepo.getAllOrders())
+            // ----- End of unmanaged code area for action  OrderHandler.ordersGet
         }
         val submitPut = submitPutAction { (body: OrderSubmitPutBody) =>  
             // ----- Start of unmanaged code area for action  OrderHandler.submitPut
