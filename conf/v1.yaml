@@ -3,7 +3,7 @@ swagger: '2.0'
 #                              API Information                                 #
 ################################################################################
 info:
-  version: 1.0
+  version: '1.0'
   title: Order Transaction API - V1
   description: |
     This is specification for Order Transaction API
