@@ -136,5 +136,5 @@ private[repo] trait PaymentProffsTable { self : HasDatabaseConfigProvider[JdbcPr
     def * = (orderId, amount, id, note, paymentDate) <> (PaymentProff.tupled, PaymentProff.unapply)
   }
 
-  protected val paymentProffsTableQuery = TableQuery[PaymentProffsTable]
+  protected val PaymentProffs = TableQuery[PaymentProffsTable]
 }

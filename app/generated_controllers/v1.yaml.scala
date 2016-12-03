@@ -38,9 +38,9 @@ package v1.yaml {
         }
         val cartGet = cartGetAction { (customerId: Int) =>  
             // ----- Start of unmanaged code area for action  CustomerHandler.cartGet
-            CartGet200(Future[ShoppingCart]{
+            CartGet200(Future[SimpleOrder]{
               val orderId = Await.result(customersRepo.getShoppingCart(customerId), Duration.Inf)
-              ShoppingCart(orderId)
+              SimpleOrder(orderId)
             })
             // ----- End of unmanaged code area for action  CustomerHandler.cartGet
         }
@@ -68,10 +68,25 @@ package v1.yaml {
             CouponPost200(ordersRepo.applyCoupon(body.orderId, body.couponCode))
             // ----- End of unmanaged code area for action  OrderHandler.couponPost
         }
+        val verifyPut = verifyPutAction { (body: SimpleOrder) =>  
+            // ----- Start of unmanaged code area for action  OrderHandler.verifyPut
+            VerifyPut200(ordersRepo.verifyOrder(body.orderId))
+            // ----- End of unmanaged code area for action  OrderHandler.verifyPut
+        }
+        val cancelPut = cancelPutAction { (body: SimpleOrder) =>  
+            // ----- Start of unmanaged code area for action  OrderHandler.cancelPut
+            CancelPut200(ordersRepo.cancelOrder(body.orderId))
+            // ----- End of unmanaged code area for action  OrderHandler.cancelPut
+        }
         val paymentProffPost = paymentProffPostAction { (body: OrderPaymentProffPostBody) =>  
             // ----- Start of unmanaged code area for action  OrderHandler.paymentProffPost
             PaymentProffPost200(ordersRepo.submitPaymentProff(body.orderId, body.paymentProff))
             // ----- End of unmanaged code area for action  OrderHandler.paymentProffPost
+        }
+        val shipPut = shipPutAction { (body: SimpleOrder) =>  
+            // ----- Start of unmanaged code area for action  OrderHandler.shipPut
+            ShipPut200(ordersRepo.shipOrder(body.orderId))
+            // ----- End of unmanaged code area for action  OrderHandler.shipPut
         }
         val submitPut = submitPutAction { (body: OrderSubmitPutBody) =>  
             // ----- Start of unmanaged code area for action  OrderHandler.submitPut

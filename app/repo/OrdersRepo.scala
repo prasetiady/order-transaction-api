@@ -113,6 +113,36 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
     1
   }
 
+  /**
+   * @param orderId
+   * Verify Order
+   */
+  def verifyOrder(orderId: Int): Future[Int] = Future {
+    val order = orderMustBeExists(orderId)
+    Await.result( Future { markOrderAsVerified(orderId) } , Duration.Inf)
+    1
+  }
+
+  /**
+   * @param orderId
+   * Ship Order
+   */
+  def shipOrder(orderId: Int): Future[Int] = Future {
+    val order = orderMustBeExists(orderId)
+    Await.result( Future { markOrderAsShipped(orderId) } , Duration.Inf)
+    1
+  }
+
+  /**
+   * @param orderId
+   * Cancel Order
+   */
+  def cancelOrder(orderId: Int): Future[Int] = Future {
+    val order = orderMustBeExists(orderId)
+    Await.result( Future { markOrderAsCanceled(orderId) } , Duration.Inf)
+    1
+  }
+
   /*
    * Rule: Product with quantity 0 can not be ordered
    */
@@ -230,6 +260,30 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
   }
 
   /**
+   * @param order
+   * Mark Order as Verified
+   */
+  private[OrdersRepo] def markOrderAsVerified(orderId: Int): Future[Unit] = Future {
+    db.run{ ordersTableQuery.filter(_.id === orderId).map(o => (o.status)).update("VERIFIED") }
+  }
+
+  /**
+   * @param order
+   * Mark Order as Shipped
+   */
+  private[OrdersRepo] def markOrderAsShipped(orderId: Int): Future[Unit] = Future {
+    db.run{ ordersTableQuery.filter(_.id === orderId).map(o => (o.status)).update("SHIPPED") }
+  }
+
+  /**
+   * @param order
+   * Mark Order as Canceled
+   */
+  private[OrdersRepo] def markOrderAsCanceled(orderId: Int): Future[Unit] = Future {
+    db.run{ ordersTableQuery.filter(_.id === orderId).map(o => (o.status)).update("CANCELED") }
+  }
+
+  /**
    * @param orderId
    * @param couponId
    * Update Order couponId value
@@ -270,7 +324,7 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
    * Add Payment Proff
    */
   private[OrdersRepo] def addPaymentProff(orderId: Int, paymentProff: NewPaymentProff): Future[Int] = db.run {
-    (paymentProffsTableQuery.map(pf => (pf.orderId, pf.amount, pf.note)) returning paymentProffsTableQuery.map(_.id)) +=
+    (PaymentProffs.map(pf => (pf.orderId, pf.amount, pf.note)) returning PaymentProffs.map(_.id)) +=
       (orderId, paymentProff.amount, paymentProff.note)
   }
 }

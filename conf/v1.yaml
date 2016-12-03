@@ -114,7 +114,7 @@ paths:
         200:
           description: OK
           schema:
-            $ref: '#/definitions/ShoppingCart'
+            $ref: '#/definitions/SimpleOrder'
         500:
           description: error
           schema:
@@ -143,6 +143,25 @@ paths:
           schema:
             $ref: '#/definitions/ErrorModel'
   # Order Path
+  # /order/{orderId}:
+  #   x-api-first-handler: 'v1.yaml.OrderHandler.order'
+  #   get:
+  #     tags:
+  #       - Order
+  #     description: Return order details
+  #     parameters:
+  #       - name: orderId
+  #         in: path
+  #         type: integer
+  #         format: int32
+  #         required: true
+  #     responses:
+  #       200:
+  #         description: OK
+  #       500:
+  #         description: error
+  #         schema:
+  #           $ref: '#/definitions/ErrorModel'
   /order/product:
     x-api-first-handler: 'v1.yaml.OrderHandler.product'
     post:
@@ -255,6 +274,10 @@ paths:
       tags:
         - Order
       description: Submit payment proff
+      consumes:
+        - application/json
+      produces:
+        - application/json
       parameters:
         - name: body
           in: body
@@ -280,103 +303,102 @@ paths:
           description: error
           schema:
             $ref: '#/definitions/ErrorModel'
-  # /order/lineItems:
-  #   x-api-first-handler: 'v1.yaml.OrderHandler.lineItems'
-  #   get:
-  #     tags:
-  #       - Order
-  #     description: Return all lineItems
-  #     responses:
-  #       200:
-  #         description: OK
-  #         schema:
-  #           type: array
-  #           items:
-  #             $ref: '#/definitions/LineItem'
-  #       500:
-  #         description: error
-  #         schema:
-  #           $ref: '#/definitions/ErrorModel'
-  # /order/{orderId}:
-  #   x-api-first-handler: 'v1.yaml.OrderHandler.order'
-  #   get:
-  #     tags:
-  #       - Order
-  #     description: Return order details
-  #     parameters:
-  #       - name: orderId
-  #         in: path
-  #         type: integer
-  #         format: int32
-  #         required: true
-  #     responses:
-  #       200:
-  #         description: OK
-  #       500:
-  #         description: error
-  #         schema:
-  #           $ref: '#/definitions/ErrorModel'
-
-
-
-
-  # /order/{orderId}/verify:
-  #   x-api-first-handler: 'v1.yaml.OrderHandler.verify'
-  #   put:
-  #     tags:
-  #       - Order
-  #     description: Verify Order
-  #     parameters:
-  #       - name: orderId
-  #         in: path
-  #         type: integer
-  #         format: int32
-  #         required: true
-  #     responses:
-  #       200:
-  #         description: OK
-  #       500:
-  #         description: error
-  #         schema:
-  #           $ref: '#/definitions/ErrorModel'
-  # /order/{orderId}/ship:
-  #   x-api-first-handler: 'v1.yaml.OrderHandler.ship'
-  #   put:
-  #     tags:
-  #       - Order
-  #     description: Ship Order
-  #     parameters:
-  #       - name: orderId
-  #         in: path
-  #         type: integer
-  #         format: int32
-  #         required: true
-  #     responses:
-  #       200:
-  #         description: OK
-  #       500:
-  #         description: error
-  #         schema:
-  #           $ref: '#/definitions/ErrorModel'
-  # /order/{orderId}/cancel:
-  #   x-api-first-handler: 'v1.yaml.OrderHandler.cancel'
-  #   put:
-  #     tags:
-  #       - Order
-  #     description: Cancel Order
-  #     parameters:
-  #       - name: orderId
-  #         in: path
-  #         type: integer
-  #         format: int32
-  #         required: true
-  #     responses:
-  #       200:
-  #         description: OK
-  #       500:
-  #         description: error
-  #         schema:
-  #           $ref: '#/definitions/ErrorModel'
+  /order/verify:
+    x-api-first-handler: 'v1.yaml.OrderHandler.verify'
+    put:
+      tags:
+        - Order
+      description: Verify Order
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required:
+              - orderId
+            properties:
+              orderId:
+                type: integer
+                format: int32
+      responses:
+        200:
+          description: OK
+          schema:
+            type: integer
+            format: int32
+        500:
+          description: error
+          schema:
+            $ref: '#/definitions/ErrorModel'
+  /order/ship:
+    x-api-first-handler: 'v1.yaml.OrderHandler.ship'
+    put:
+      tags:
+        - Order
+      description: Ship Order
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required:
+              - orderId
+            properties:
+              orderId:
+                type: integer
+                format: int32
+      responses:
+        200:
+          description: OK
+          schema:
+            type: integer
+            format: int32
+        500:
+          description: error
+          schema:
+            $ref: '#/definitions/ErrorModel'
+  /order/cancel:
+    x-api-first-handler: 'v1.yaml.OrderHandler.cancel'
+    put:
+      tags:
+        - Order
+      description: Cancel Order
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required:
+              - orderId
+            properties:
+              orderId:
+                type: integer
+                format: int32
+      responses:
+        200:
+          description: OK
+          schema:
+            type: integer
+            format: int32
+        500:
+          description: error
+          schema:
+            $ref: '#/definitions/ErrorModel'
 ################################################################################
 #                                 Definitions                                  #
 ################################################################################
@@ -501,7 +523,7 @@ definitions:
       couponId:
         type: integer
         format: int32
-  ShoppingCart:
+  SimpleOrder:
     required:
       - orderId
     properties:
