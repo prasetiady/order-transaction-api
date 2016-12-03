@@ -11,7 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @Singleton()
-class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) extends OrdersTable with LineItemsTable with ProductsTable with CouponsTable with ShippingAddressesTable with HasDatabaseConfigProvider[JdbcProfile] {
+class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) extends OrdersTable with LineItemsTable with ProductsTable with CouponsTable with ShippingAddressesTable with PaymentProffsTable with HasDatabaseConfigProvider[JdbcProfile] {
   import driver.api._
 
   /**
@@ -96,6 +96,20 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
       markOrderAsSubmitted(order)
       addShippingAddress(orderId, shippingAddress)
     }, Duration.Inf)
+    1
+  }
+
+  /**
+   * @param orderId
+   * @param paymentProff
+   * Submit Payment Proff
+   */
+  def submitPaymentProff(orderId: Int, paymentProff: NewPaymentProff): Future[Int] = Future {
+    val order = orderMustBeExists(orderId)
+    Await.result( Future {
+      markOrderAsPaid(orderId)
+      addPaymentProff(orderId, paymentProff)
+    } , Duration.Inf)
     1
   }
 
@@ -208,6 +222,14 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
   }
 
   /**
+   * @param order
+   * Mark Order as Paid
+   */
+  private[OrdersRepo] def markOrderAsPaid(orderId: Int): Future[Unit] = Future {
+    db.run{ ordersTableQuery.filter(_.id === orderId).map(o => (o.isPaid)).update(true) }
+  }
+
+  /**
    * @param orderId
    * @param couponId
    * Update Order couponId value
@@ -233,11 +255,22 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
   }
 
   /**
-   * @param customerId
-   * Return order id with isSubmitted value false
+   * @param orderId
+   * @param shippingAddress
+   * Add shipping address
    */
   private[OrdersRepo] def addShippingAddress(orderId: Int, shippingAddress: NewShippingAddress): Future[Int] = db.run {
-    (shippingAdressesTableQuery.map(sa => (sa.orderId, sa.address, sa.name, sa.phoneNumber, sa.email)) returning shippingAdressesTableQuery.map(_.id)) += 
+    (shippingAdressesTableQuery.map(sa => (sa.orderId, sa.address, sa.name, sa.phoneNumber, sa.email)) returning shippingAdressesTableQuery.map(_.id)) +=
       (orderId, shippingAddress.address, shippingAddress.name, shippingAddress.phoneNumber, shippingAddress.email)
+  }
+
+  /**
+   * @param orderId
+   * @param paymentProff
+   * Add Payment Proff
+   */
+  private[OrdersRepo] def addPaymentProff(orderId: Int, paymentProff: NewPaymentProff): Future[Int] = db.run {
+    (paymentProffsTableQuery.map(pf => (pf.orderId, pf.amount, pf.note)) returning paymentProffsTableQuery.map(_.id)) +=
+      (orderId, paymentProff.amount, paymentProff.note)
   }
 }

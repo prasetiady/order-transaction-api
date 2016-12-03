@@ -239,7 +239,37 @@ paths:
                 format: int32
               shippingAddress:
                 $ref: '#/definitions/NewShippingAddress'
+      responses:
+        200:
+          description: OK
+          schema:
+            type: integer
+            format: int32
+        500:
+          description: error
+          schema:
+            $ref: '#/definitions/ErrorModel'
+  /order/paymentProff:
+    x-api-first-handler: 'v1.yaml.OrderHandler.paymentProff'
+    post:
+      tags:
+        - Order
+      description: Submit payment proff
+      parameters:
+        - name: body
+          in: body
           required: true
+          schema:
+            type: object
+            required:
+              - orderId
+              - paymentProff
+            properties:
+              orderId:
+                type: integer
+                format: int32
+              paymentProff:
+                $ref: '#/definitions/NewPaymentProff'
       responses:
         200:
           description: OK
@@ -289,30 +319,7 @@ paths:
 
 
 
-  # /order/{orderId}/paymentProff:
-  #   x-api-first-handler: 'v1.yaml.OrderHandler.paymentProff'
-  #   post:
-  #     tags:
-  #       - Order
-  #     description: Pay order, submit payment proff
-  #     parameters:
-  #       - name: orderId
-  #         in: path
-  #         type: integer
-  #         format: int32
-  #         required: true
-  #       - name: paymentProff
-  #         in: body
-  #         schema:
-  #           type: string
-  #         required: true
-  #     responses:
-  #       200:
-  #         description: OK
-  #       500:
-  #         description: error
-  #         schema:
-  #           $ref: '#/definitions/ErrorModel'
+
   # /order/{orderId}/verify:
   #   x-api-first-handler: 'v1.yaml.OrderHandler.verify'
   #   put:
@@ -538,6 +545,16 @@ definitions:
       phoneNumber:
         type: string
       email:
+        type: string
+  NewPaymentProff:
+    required:
+      - amount
+      - note
+    properties:
+      amount:
+        type: number
+        format: double
+      note:
         type: string
   PaymentProff:
     required:
