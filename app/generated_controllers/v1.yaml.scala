@@ -60,37 +60,44 @@ package v1.yaml {
         // ----- End of unmanaged code area for constructor OrderHandler
         val productPost = productPostAction { (body: OrderProductPostBody) =>  
             // ----- Start of unmanaged code area for action  OrderHandler.productPost
-            ProductPost200(ordersRepo.addProduct(body.orderId, body.productId))
+            Await.ready(ordersRepo.addProduct(body.orderId, body.productId), Duration.Inf)
+            ProductPost200()
             // ----- End of unmanaged code area for action  OrderHandler.productPost
         }
         val couponPost = couponPostAction { (body: OrderCouponPostBody) =>  
             // ----- Start of unmanaged code area for action  OrderHandler.couponPost
-            CouponPost200(ordersRepo.applyCoupon(body.orderId, body.couponCode))
+            Await.ready(ordersRepo.applyCoupon(body.orderId, body.couponCode), Duration.Inf)
+            CouponPost200()
             // ----- End of unmanaged code area for action  OrderHandler.couponPost
         }
         val verifyPut = verifyPutAction { (body: SimpleOrder) =>  
             // ----- Start of unmanaged code area for action  OrderHandler.verifyPut
-            VerifyPut200(ordersRepo.verifyOrder(body.orderId))
+            Await.ready(ordersRepo.verifyOrder(body.orderId), Duration.Inf)
+            VerifyPut200()
             // ----- End of unmanaged code area for action  OrderHandler.verifyPut
         }
         val cancelPut = cancelPutAction { (body: SimpleOrder) =>  
             // ----- Start of unmanaged code area for action  OrderHandler.cancelPut
-            CancelPut200(ordersRepo.cancelOrder(body.orderId))
+            Await.ready(ordersRepo.cancelOrder(body.orderId), Duration.Inf)
+            CancelPut200()
             // ----- End of unmanaged code area for action  OrderHandler.cancelPut
         }
         val paymentProffPost = paymentProffPostAction { (body: OrderPaymentProffPostBody) =>  
             // ----- Start of unmanaged code area for action  OrderHandler.paymentProffPost
-            PaymentProffPost200(ordersRepo.submitPaymentProff(body.orderId, body.paymentProff))
+            Await.ready(ordersRepo.submitPaymentProff(body.orderId, body.paymentProff), Duration.Inf)
+            PaymentProffPost200()
             // ----- End of unmanaged code area for action  OrderHandler.paymentProffPost
         }
         val shipPut = shipPutAction { (body: SimpleOrder) =>  
             // ----- Start of unmanaged code area for action  OrderHandler.shipPut
-            ShipPut200(ordersRepo.shipOrder(body.orderId))
+            Await.ready(ordersRepo.shipOrder(body.orderId), Duration.Inf)
+            ShipPut200()
             // ----- End of unmanaged code area for action  OrderHandler.shipPut
         }
         val submitPut = submitPutAction { (body: OrderSubmitPutBody) =>  
             // ----- Start of unmanaged code area for action  OrderHandler.submitPut
-            SubmitPut200(ordersRepo.submitOrder(body.orderId, body.shippingAddress))
+            Await.ready(ordersRepo.submitOrder(body.orderId, body.shippingAddress), Duration.Inf)
+            SubmitPut200()
             // ----- End of unmanaged code area for action  OrderHandler.submitPut
         }
     

@@ -20,22 +20,21 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
    * @return
    * Add a product to an order
    */
-  def addProduct(orderId: Int, productId: Int): Future[Int] = Future {
+  def addProduct(orderId: Int, productId: Int): Future[Unit] = Future {
     val order = orderMustBeExists(orderId)
     orderMustHasNotBeenSubmitted(order)
-    val getProductResult: Option[Product] = Await.result(getProductById(productId), Duration.Inf)
-    getProductResult match {
+    val productOption: Option[Product] = Await.result(getProductById(productId), Duration.Inf)
+    productOption match {
       case None => throw new Exception("Not found product with id: " + productId)
       case Some(product) => {
         productQuantityMustBeGreaterThanZero(product)
-        val getLineItemResult: Option[LineItem] = Await.result(getLineItem(orderId, productId), Duration.Inf)
-        getLineItemResult match {
+        val lineItemOption: Option[LineItem] = Await.result(getLineItem(orderId, productId), Duration.Inf)
+        lineItemOption match {
           case Some(lineItem) => {
             productQuantityMustBeGreaterThanLineItemQuantity(product,lineItem)
             increaseLineItemQuantityByOne(lineItem)
-            lineItem.id
           }
-          case None => Await.result(createNewLineItem(orderId, product), Duration.Inf)
+          case None => Await.ready(createNewLineItem(orderId, product), Duration.Inf)
         }
       }
     }
@@ -47,16 +46,15 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
    * @return
    * Apply coupon to an order
    */
-  def applyCoupon(orderId: Int, couponCode: String): Future[Int] = Future {
+  def applyCoupon(orderId: Int, couponCode: String): Future[Unit] = Future {
     val order = orderMustBeExists(orderId)
     orderCanOnlyHaveOneCoupon(order)
     orderMustHasNotBeenSubmitted(order)
-    val getCouponResult: Option[Coupon] = Await.result(findActiveCoupon(couponCode), Duration.Inf)
-    getCouponResult match {
+    val couponOption: Option[Coupon] = Await.result(findActiveCoupon(couponCode), Duration.Inf)
+    couponOption match {
       case Some(coupon) => {
         couponQuantityMustBeGreaterThanZero(coupon)
-        Await.result(applyCoupon(orderId, coupon.id), Duration.Inf)
-        coupon.id
+        Await.ready(applyCoupon(orderId, coupon.id), Duration.Inf)
       }
       case None => throw new Exception("Not found active coupon with code: " + couponCode)
     }
@@ -68,7 +66,7 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
    * @return
    * Submit order
    */
-  def submitOrder(orderId: Int, shippingAddress: NewShippingAddress): Future[Int] = Future {
+  def submitOrder(orderId: Int, shippingAddress: NewShippingAddress): Future[Unit] = Future {
     val order = orderMustBeExists(orderId)
     orderMustHasNotBeenSubmitted(order)
     val q1 = for {
@@ -78,7 +76,7 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
     val q2 = q1.result
     val items: Seq[(Int,Int,Int)] = Await.result(db.run(q2), Duration.Inf)
     shoppingCartMustNotEmpty(items.length)
-    Await.result( Future {
+    Await.ready( Future {
       items foreach (item =>
         if (item._2 < item._3) throw new Exception("Product with id " + item._1 + " not available")
       )
@@ -96,7 +94,6 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
       markOrderAsSubmitted(order)
       addShippingAddress(orderId, shippingAddress)
     }, Duration.Inf)
-    1
   }
 
   /**
@@ -104,43 +101,39 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
    * @param paymentProff
    * Submit Payment Proff
    */
-  def submitPaymentProff(orderId: Int, paymentProff: NewPaymentProff): Future[Int] = Future {
+  def submitPaymentProff(orderId: Int, paymentProff: NewPaymentProff): Future[Unit] = Future {
     val order = orderMustBeExists(orderId)
-    Await.result( Future {
+    Await.ready( Future {
       markOrderAsPaid(orderId)
       addPaymentProff(orderId, paymentProff)
     } , Duration.Inf)
-    1
   }
 
   /**
    * @param orderId
    * Verify Order
    */
-  def verifyOrder(orderId: Int): Future[Int] = Future {
+  def verifyOrder(orderId: Int): Future[Unit] = Future {
     val order = orderMustBeExists(orderId)
-    Await.result( Future { markOrderAsVerified(orderId) } , Duration.Inf)
-    1
+    Await.ready( Future { markOrderAsVerified(orderId) } , Duration.Inf)
   }
 
   /**
    * @param orderId
    * Ship Order
    */
-  def shipOrder(orderId: Int): Future[Int] = Future {
+  def shipOrder(orderId: Int): Future[Unit] = Future {
     val order = orderMustBeExists(orderId)
-    Await.result( Future { markOrderAsShipped(orderId) } , Duration.Inf)
-    1
+    Await.ready( Future { markOrderAsShipped(orderId) } , Duration.Inf)
   }
 
   /**
    * @param orderId
    * Cancel Order
    */
-  def cancelOrder(orderId: Int): Future[Int] = Future {
+  def cancelOrder(orderId: Int): Future[Unit] = Future {
     val order = orderMustBeExists(orderId)
-    Await.result( Future { markOrderAsCanceled(orderId) } , Duration.Inf)
-    1
+    Await.ready( Future { markOrderAsCanceled(orderId) } , Duration.Inf)
   }
 
   /*
