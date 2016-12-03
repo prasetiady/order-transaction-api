@@ -11,7 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @Singleton()
-class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) extends OrdersTable with LineItemsTable with ProductsTable with CouponsTable with HasDatabaseConfigProvider[JdbcProfile] {
+class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) extends OrdersTable with LineItemsTable with ProductsTable with CouponsTable with ShippingAddressesTable with HasDatabaseConfigProvider[JdbcProfile] {
   import driver.api._
 
   /**
@@ -21,7 +21,8 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
    * Add a product to an order
    */
   def addProduct(orderId: Int, productId: Int): Future[Int] = Future {
-    orderMustBeExists(orderId)
+    val order = orderMustBeExists(orderId)
+    orderMustHasNotBeenSubmitted(order)
     val getProductResult: Option[Product] = Await.result(getProductById(productId), Duration.Inf)
     getProductResult match {
       case None => throw new Exception("Not found product with id: " + productId)
@@ -49,6 +50,7 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
   def applyCoupon(orderId: Int, couponCode: String): Future[Int] = Future {
     val order = orderMustBeExists(orderId)
     orderCanOnlyHaveOneCoupon(order)
+    orderMustHasNotBeenSubmitted(order)
     val getCouponResult: Option[Coupon] = Await.result(findActiveCoupon(couponCode), Duration.Inf)
     getCouponResult match {
       case Some(coupon) => {
@@ -66,7 +68,34 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
    * @return
    * Submit order
    */
-  def submitOrder(orderId: Int, shippingAddress: ShippingAddress): Future[Int] = Future {
+  def submitOrder(orderId: Int, shippingAddress: NewShippingAddress): Future[Int] = Future {
+    val order = orderMustBeExists(orderId)
+    orderMustHasNotBeenSubmitted(order)
+    val q1 = for {
+      l <- lineItemsTableQuery.filter(_.orderId === orderId)
+      p <- productsTableQuery if l.productId === p.id
+    } yield (p.id, p.quantity, l.quantity)
+    val q2 = q1.result
+    val items: Seq[(Int,Int,Int)] = Await.result(db.run(q2), Duration.Inf)
+    shoppingCartMustNotEmpty(items.length)
+    Await.result( Future {
+      items foreach (item =>
+        if (item._2 < item._3) throw new Exception("Product with id " + item._1 + " not available")
+      )
+      if (order.couponId != 0) {
+        val couponOption: Option[Coupon] = Await.result(getCoupon(order.couponId), Duration.Inf)
+        couponOption match {
+          case None => throw new Exception("Not found coupon with id " + order.couponId)
+          case Some(coupon) => {
+            couponQuantityMustBeGreaterThanZero(coupon)
+            reduceCouponQuantityByOne(coupon)
+          }
+        }
+      }
+      reduceProductQuantity(items)
+      markOrderAsSubmitted(order)
+      addShippingAddress(orderId, shippingAddress)
+    }, Duration.Inf)
     1
   }
 
@@ -95,6 +124,12 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
     if (order.couponId == 0) true else throw new Exception("Order already have coupon applied")
 
   /*
+   * Rule: Order Must Has not Been Submitted
+   */
+  private[OrdersRepo] def orderMustHasNotBeenSubmitted(order: Order): Boolean =
+    if (!order.isSubmitted) true else throw new Exception("Order already submitted")
+
+  /*
    * Rule: Order must be exists
    */
   private[OrdersRepo] def orderMustBeExists(orderId: Int): Order = {
@@ -104,6 +139,12 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
       case None => throw new Exception("Not found order with id: " + orderId)
     }
   }
+
+  /*
+   * Rule : Shopping cart must not empty
+   */
+  private[OrdersRepo] def shoppingCartMustNotEmpty(itemsCount: Int): Boolean =
+    if (itemsCount > 0) true else throw new Exception("Shopping cart is empty")
 
   /**
    * @param productId
@@ -141,6 +182,32 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
   }
 
   /**
+   * @param lineItem
+   * Reduce Coupon quantity by one
+   */
+  private[OrdersRepo] def reduceCouponQuantityByOne(coupon: Coupon): Future[Int] = db.run {
+    couponsTableQuery.filter(_.id === coupon.id).map(_.quantity).update(coupon.quantity - 1)
+  }
+
+  /**
+   * @param lineItem
+   * Reduce Product quantity
+   */
+  private[OrdersRepo] def reduceProductQuantity(items: Seq[(Int, Int, Int)]): Future[Unit] = Future {
+    items foreach ( item =>
+      db.run { productsTableQuery.filter(_.id === item._1).map(_.quantity).update(item._2 - item._3) }
+    )
+  }
+
+  /**
+   * @param order
+   * Mark Order as Submitted
+   */
+  private[OrdersRepo] def markOrderAsSubmitted(order: Order): Future[Unit] = Future {
+    db.run{ ordersTableQuery.filter(_.id === order.id).map(o => (o.isSubmitted, o.status)).update(true,"HOLD") }
+  }
+
+  /**
    * @param orderId
    * @param couponId
    * Update Order couponId value
@@ -156,5 +223,21 @@ class OrdersRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
   private[OrdersRepo] def findActiveCoupon(couponCode: String): Future[Option[Coupon]] = db.run {
     val now: String = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
     couponsTableQuery.filter(c => c.code === couponCode && c.validFrom <= now && c.validUntil >= now).result.headOption
+  }
+
+  /**
+   * @param couponId
+   */
+  private[OrdersRepo] def getCoupon(couponId: Int): Future[Option[Coupon]] = db.run {
+    couponsTableQuery.filter(_.id === couponId).result.headOption
+  }
+
+  /**
+   * @param customerId
+   * Return order id with isSubmitted value false
+   */
+  private[OrdersRepo] def addShippingAddress(orderId: Int, shippingAddress: NewShippingAddress): Future[Int] = db.run {
+    (shippingAdressesTableQuery.map(sa => (sa.orderId, sa.address, sa.name, sa.phoneNumber, sa.email)) returning shippingAdressesTableQuery.map(_.id)) += 
+      (orderId, shippingAddress.address, shippingAddress.name, shippingAddress.phoneNumber, shippingAddress.email)
   }
 }

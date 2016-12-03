@@ -238,7 +238,7 @@ paths:
                 type: integer
                 format: int32
               shippingAddress:
-                $ref: '#/definitions/ShippingAddress'
+                $ref: '#/definitions/NewShippingAddress'
           required: true
       responses:
         200:
@@ -501,6 +501,21 @@ definitions:
       orderId:
         type: integer
         format: int32
+  NewShippingAddress:
+    required:
+      - address
+      - name
+      - phoneNumber
+      - email
+    properties:
+      address:
+        type: string
+      name:
+        type: string
+      phoneNumber:
+        type: string
+      email:
+        type: string
   ShippingAddress:
     required:
       - id
